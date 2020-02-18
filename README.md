@@ -453,7 +453,7 @@ Configuration:
 
 #### Editing
 
-A stream configuration can be edited, which allows the configuration to be adjusted via CLI flags.  Here I have a incorrectly created ORDERS stream that I fix:
+A stream configuration can be edited, which allows the configuration to be adjusted via CLI flags.  Here I have a incorrectly created ORDERS stream that I fix (`jq` is not included in the `synadia/jsm` image - if you installed with that method and want to run this example, `jq` can be dowloaded from [here](https://github.com/stedolan/jq/releases). `jq-linux64` is the version you want. Use `wget`, make sure to add execute permissions, and optionally change the name from `jq-linux64` to `jq` and move it to a location in your path):
 
 ```nohighlight
 $ jsm str info ORDERS -j | jq .config.subjects
