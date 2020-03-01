@@ -14,9 +14,15 @@
 package main
 
 import (
+	"crypto/tls"
+	"fmt"
 	"log"
+	"net"
+	"net/url"
+	"strings"
 	"time"
 
+	"github.com/nats-io/nats.go"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -24,13 +30,65 @@ func configureRTTCommand(app *kingpin.Application) {
 	app.Command("rtt", "Compute round-trip time to NATS server").Action(rtt)
 }
 
-const rttIters = 5
-
 func rtt(pc *kingpin.ParseContext) error {
-	// TODO(dlc) - we could resolve if we have multiple A records and test each one.
-	nc, err := newNatsConn(servers, natsOpts()...)
+	if !strings.Contains(servers, "://") {
+		servers = fmt.Sprintf("nats://%s", servers)
+	}
+
+	u, err := url.Parse(servers)
 	if err != nil {
 		return err
+	}
+
+	if net.ParseIP(u.Hostname()) == nil {
+		addrs, _ := net.LookupHost(u.Hostname())
+		if len(addrs) <= 1 {
+			goto doSingle
+		}
+		opts := natsOpts()
+		nc, err := newNatsConn(servers, opts...)
+		if err != nil {
+			return err
+		}
+		log.Printf("[%s]\n", nc.ConnectedUrl())
+		if nc.TLSRequired() {
+			opts = append(opts, useTLSName(u.Hostname()))
+		}
+		nc.Close()
+		for _, a := range addrs {
+			server := fmt.Sprintf("%s://%s", u.Scheme, net.JoinHostPort(a, u.Port()))
+			_, rtt, err := calcRTT(server, opts)
+			if err != nil {
+				return err
+			}
+			log.Printf("    [%-15s] = avg %v\n", a, rtt)
+		}
+		return nil
+	}
+
+doSingle:
+	url, rtt, err := calcRTT(servers, natsOpts())
+	if err != nil {
+		return err
+	}
+	log.Printf("[%s] = avg %v\n", url, rtt)
+
+	return nil
+}
+
+func useTLSName(name string) nats.Option {
+	return func(o *nats.Options) error {
+		o.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12, ServerName: name}
+		return nil
+	}
+}
+
+func calcRTT(server string, opts []nats.Option) (string, time.Duration, error) {
+	const rttIters = 5
+
+	nc, err := newNatsConn(server, opts...)
+	if err != nil {
+		return "", 0, err
 	}
 	defer nc.Close()
 
@@ -43,7 +101,5 @@ func rtt(pc *kingpin.ParseContext) error {
 		rtt := time.Since(start)
 		totalTime += rtt
 	}
-
-	log.Printf("[%s] = avg %v\n", nc.ConnectedUrl(), totalTime/rttIters)
-	return nil
+	return nc.ConnectedUrl(), (totalTime / rttIters), nil
 }
