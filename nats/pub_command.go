@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/nats-io/nats.go"
 	"golang.org/x/crypto/ssh/terminal"
@@ -26,12 +27,13 @@ import (
 )
 
 type pubCmd struct {
-	subject string
-	body    string
-	req     bool
-	replyTo string
-	raw     bool
-	hdrs    []string
+	subject   string
+	body      string
+	req       bool
+	replyTo   string
+	respCount uint
+	raw       bool
+	hdrs      []string
 }
 
 func configurePubCommand(app *kingpin.Application) {
@@ -49,6 +51,7 @@ func configurePubCommand(app *kingpin.Application) {
 	req.Flag("wait", "Wait for a reply from a service").Short('w').Default("true").Hidden().BoolVar(&c.req)
 	req.Flag("raw", "Show just the output received").Short('r').Default("false").BoolVar(&c.raw)
 	req.Flag("header", "Adds headers to the message").Short('H').StringsVar(&c.hdrs)
+	req.Flag("reply_count", "Number of expected replies (within timeout)").Short('c').Default("1").UintVar(&c.respCount)
 }
 
 func (c *pubCmd) prepareMsg() (*nats.Msg, error) {
@@ -57,6 +60,27 @@ func (c *pubCmd) prepareMsg() (*nats.Msg, error) {
 	msg.Data = []byte(c.body)
 
 	return msg, parseStringsToHeader(c.hdrs, msg)
+}
+
+func (c *pubCmd) printResponse(m *nats.Msg) {
+	if !c.raw {
+		log.Printf("Received on %q", m.Subject)
+		if len(m.Header) > 0 {
+			for h, vals := range m.Header {
+				for _, val := range vals {
+					log.Printf("%s: %s", h, val)
+				}
+			}
+
+			fmt.Println()
+		}
+	}
+
+	fmt.Println(string(m.Data))
+
+	if !c.raw && !strings.HasSuffix(string(m.Data), "\n") {
+		fmt.Println()
+	}
 }
 
 func (c *pubCmd) publish(pc *kingpin.ParseContext) error {
@@ -85,33 +109,46 @@ func (c *pubCmd) publish(pc *kingpin.ParseContext) error {
 			return err
 		}
 
-		m, err := nc.RequestMsg(msg, timeout)
-		if err != nil {
-			return err
-		}
+		if c.respCount == 1 {
+			m, err := nc.RequestMsg(msg, timeout)
+			if err != nil {
+				return err
+			}
+			c.printResponse(m)
+		} else {
+			if msg.Reply == "" {
+				msg.Reply = nc.NewRespInbox()
+			}
 
-		if c.raw {
-			fmt.Println(string(m.Data))
+			msgChan := make(chan *nats.Msg, c.respCount)
+			defer close(msgChan)
+			sub, err := nc.ChanSubscribe(msg.Reply, msgChan)
+			if err != nil {
+				return err
+			}
+			defer sub.Drain()
 
-			return nil
-		}
+			err = nc.PublishMsg(msg)
+			if err != nil {
+				return err
+			}
 
-		log.Printf("Received on %q", m.Subject)
-		if len(m.Header) > 0 {
-			for h, vals := range m.Header {
-				for _, val := range vals {
-					log.Printf("%s: %s", h, val)
+			cnt := uint(0)
+			t := time.NewTimer(timeout)
+			for {
+				select {
+				case <-t.C:
+					return nil
+				case m := <-msgChan:
+					c.printResponse(m)
+					cnt++
+					if cnt == c.respCount {
+						return nil
+					}
 				}
 			}
 
-			fmt.Println()
 		}
-
-		fmt.Println(string(m.Data))
-		if !strings.HasSuffix(string(m.Data), "\n") {
-			fmt.Println()
-		}
-
 		return nil
 	}
 
