@@ -35,7 +35,11 @@ type ctxCommand struct {
 func configureCtxCommand(app *kingpin.Application) {
 	c := ctxCommand{}
 
-	context := app.Command("context", "Manage nats configuration contexts").Alias("ctx")
+	context := app.Command("context", `Manage nats configuration contexts
+
+Context names can not contain your OS path separator or ".." but are otherwise
+at your discretion.  There is one selected context which is recorded as
+default, and the NATS_CONTEXT environment variable can override that.`).Alias("ctx")
 
 	edit := context.Command("edit", "Edit a context in your EDITOR").Alias("vi").Action(c.editCommand)
 	edit.Arg("name", "The context name to edit").Required().StringVar(&c.name)

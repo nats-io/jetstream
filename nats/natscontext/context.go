@@ -39,6 +39,8 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
+const EnvVarname = "NATS_CONTEXT"
+
 type Option func(c *settings)
 
 type settings struct {
@@ -113,6 +115,8 @@ func DeleteContext(name string) error {
 
 	if SelectedContext() == name {
 		return fmt.Errorf("cannot remove the current active context")
+	} else if CurrentContext() == name {
+		return fmt.Errorf("cannot remove the current env-selected context")
 	}
 
 	parent, err := parentDir()
@@ -211,6 +215,19 @@ func SelectedContext() string {
 	return strings.TrimSpace(string(fc))
 }
 
+// CurrentContext returns the name of the current context to use, allowing for
+// an environment variable override and if that fails, then the current
+// selected context.
+func CurrentContext() string {
+	envDriven := os.Getenv(EnvVarname)
+	if envDriven != "" {
+		// We don't test for it being valid here, let the caller fail
+		// appropriately if unknown.
+		return envDriven
+	}
+	return SelectedContext()
+}
+
 func knownContext(parent string, name string) bool {
 	if !validName(name) {
 		return false
@@ -226,9 +243,9 @@ func (c *Context) loadActiveContext() error {
 		return err
 	}
 
-	// none given, lets try to find it via the fs
+	// none given, lets try to find it via the env/fs
 	if c.Name == "" {
-		c.Name = SelectedContext()
+		c.Name = CurrentContext()
 		if c.Name == "" {
 			return nil
 		}

@@ -11,6 +11,10 @@ import (
 
 func TestContext(t *testing.T) {
 	os.Setenv("XDG_CONFIG_HOME", "testdata")
+	if natscontext.EnvVarname != "NATS_CONTEXT" {
+		t.Fatalf("unexpected change in env-var for NATS_CONTEXT, got %q", natscontext.EnvVarname)
+	}
+	os.Unsetenv("NATS_CONTEXT")
 
 	known := natscontext.KnownContexts()
 	if len(known) != 2 && known[0] != "gotest" && known[1] != "other" {
@@ -69,6 +73,24 @@ func TestContext(t *testing.T) {
 	if config.ServerURL() != "connect.ngs.global" {
 		t.Fatalf("expected ngs got %s", config.ServerURL())
 	}
+
+	// support environment variables to switch contexts
+	const (
+		storedContext = "gotest"
+		envContext    = "other"
+	)
+	if natscontext.SelectedContext() != storedContext {
+		t.Fatalf("test suite bug, selected context was not reset to %q", storedContext)
+	}
+	os.Setenv("NATS_CONTEXT", envContext)
+	config, err = natscontext.New("", true)
+	if err != nil {
+		t.Fatalf("error loading context: %s", err)
+	}
+	if config.Name != envContext {
+		t.Fatalf("env-driven selection, expected context %q, got %q", envContext, config.Name)
+	}
+	os.Unsetenv("NATS_CONTEXT")
 
 	// support missing config/context
 	os.Setenv("XDG_CONFIG_HOME", "/nonexisting")
