@@ -122,6 +122,10 @@ func configureStreamCommand(app *kingpin.Application) {
 	strLs := str.Command("ls", "List all known Streams").Alias("list").Alias("l").Action(c.lsAction)
 	strLs.Flag("json", "Produce JSON output").Short('j').BoolVar(&c.json)
 
+	strLmsgs := str.Command("lms", "List all messages for Stream").Alias("listmsgs").Alias("lm").Action(c.lmsAction)
+	strLmsgs.Arg("stream", "Stream name").StringVar(&c.stream)
+	strLmsgs.Flag("json", "Produce JSON output").Short('j').BoolVar(&c.json)
+
 	strPurge := str.Command("purge", "Purge a Stream without deleting it").Action(c.purgeAction)
 	strPurge.Arg("stream", "Stream name").StringVar(&c.stream)
 	strPurge.Flag("json", "Produce JSON output").Short('j').BoolVar(&c.json)
@@ -1038,6 +1042,41 @@ func (c *streamCmd) lsAction(_ *kingpin.ParseContext) (err error) {
 		fmt.Printf("\t%s\n", s)
 	}
 	fmt.Println()
+
+	return nil
+}
+
+func (c *streamCmd) lmsAction(_ *kingpin.ParseContext) (err error) {
+	_, err = prepareHelper("", natsOpts()...)
+	kingpin.FatalIfError(err, "setup failed")
+
+	c.stream, err = selectStream(c.stream, c.force)
+	kingpin.FatalIfError(err, "could not select Stream")
+
+	var (
+		stream *jsm.Stream
+		info *api.StreamInfo
+		msg *api.StoredMsg
+	)
+	stream, err = jsm.LoadStream(c.stream)
+	kingpin.FatalIfError(err, "could not request Stream info")
+
+	info, err = stream.LatestInformation()
+	if err != nil {
+		return err
+	}
+
+	for seq := int(info.State.FirstSeq); seq <= int(info.State.LastSeq); seq++ {
+		msg, err = stream.ReadMessage(seq)
+		if c.json {
+			err = printJSON(msg)
+			kingpin.FatalIfError(err, "could not display Streams")
+		} else {
+			fmt.Printf("Subject: %v Sequence: %v, Time: %v", msg.Subject, msg.Sequence, msg.Time)
+			fmt.Println()
+			fmt.Printf("\tDate: %v", string(msg.Data))
+		}
+	}
 
 	return nil
 }
