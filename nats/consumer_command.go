@@ -139,7 +139,7 @@ func (c *consumerCmd) lsAction(pc *kingpin.ParseContext) error {
 	c.connectAndSetup(true, false)
 
 	stream, err := jsm.LoadStream(c.stream)
-	kingpin.FatalIfError(err, "could not load Consumers")
+	kingpin.FatalIfError(err, "could not load stream")
 
 	consumers, err := stream.ConsumerNames()
 	kingpin.FatalIfError(err, "could not load Consumers")
