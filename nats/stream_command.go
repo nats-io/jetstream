@@ -30,6 +30,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/gosuri/uiprogress"
 	"github.com/nats-io/jsm.go/api"
+	"github.com/nats-io/nats.go"
 	"github.com/xlab/tablewriter"
 	"gopkg.in/alecthomas/kingpin.v2"
 
@@ -65,8 +66,12 @@ type streamCmd struct {
 	showProgress        bool
 	healthCheck         bool
 	dupeWindow          string
+  List_Messages
 	startSequence       int
 	messageCount        int
+
+	nc  *nats.Conn
+	mgr *jsm.Manager
 }
 
 func configureStreamCommand(app *kingpin.Application) {
@@ -175,11 +180,11 @@ func configureStreamCommand(app *kingpin.Application) {
 	strTRm.Flag("force", "Force removal without prompting").Short('f').BoolVar(&c.force)
 }
 
-func (c *streamCmd) restoreAction(pc *kingpin.ParseContext) (err error) {
-	_, err = prepareHelper("", natsOpts()...)
+func (c *streamCmd) restoreAction(pc *kingpin.ParseContext) error {
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	known, err := jsm.IsKnownStream(c.stream)
+	known, err := mgr.IsKnownStream(c.stream)
 	kingpin.FatalIfError(err, "Could not check if the stream already exist")
 	if known {
 		kingpin.Fatalf("Stream %q already exist", c.stream)
@@ -211,7 +216,7 @@ func (c *streamCmd) restoreAction(pc *kingpin.ParseContext) (err error) {
 
 	fmt.Printf("Starting restore of Stream %q from file %q\n\n", c.stream, c.backupFile)
 
-	fp, _, err := jsm.RestoreSnapshotFromFile(context.Background(), c.stream, c.backupFile, opts...)
+	fp, _, err := mgr.RestoreSnapshotFromFile(context.Background(), c.stream, c.backupFile, opts...)
 	kingpin.FatalIfError(err, "restore failed")
 	if c.showProgress {
 		progress.Set(int(fp.ChunksSent()))
@@ -222,7 +227,7 @@ func (c *streamCmd) restoreAction(pc *kingpin.ParseContext) (err error) {
 	fmt.Printf("Restored stream %q in %v\n", c.stream, fp.EndTime().Sub(fp.StartTime()).Round(time.Second))
 	fmt.Println()
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not request Stream info")
 	err = c.showStream(stream)
 	kingpin.FatalIfError(err, "could not show stream")
@@ -230,11 +235,11 @@ func (c *streamCmd) restoreAction(pc *kingpin.ParseContext) (err error) {
 	return nil
 }
 
-func (c *streamCmd) backupAction(_ *kingpin.ParseContext) (err error) {
-	_, err = prepareHelper("", natsOpts()...)
+func (c *streamCmd) backupAction(_ *kingpin.ParseContext) error {
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not load stream")
 
 	first := true
@@ -311,14 +316,14 @@ func (c *streamCmd) backupAction(_ *kingpin.ParseContext) (err error) {
 	return nil
 }
 
-func (c *streamCmd) streamTemplateRm(_ *kingpin.ParseContext) (err error) {
-	_, err = prepareHelper("", natsOpts()...)
+func (c *streamCmd) streamTemplateRm(_ *kingpin.ParseContext) error {
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	c.stream, err = selectStreamTemplate(c.stream, c.force)
+	c.stream, err = selectStreamTemplate(mgr, c.stream, c.force)
 	kingpin.FatalIfError(err, "could not pick a Stream Template to operate on")
 
-	template, err := jsm.LoadStreamTemplate(c.stream)
+	template, err := mgr.LoadStreamTemplate(c.stream)
 	kingpin.FatalIfError(err, "could not load Stream Template")
 
 	if !c.force {
@@ -352,10 +357,10 @@ func (c *streamCmd) streamTemplateAdd(pc *kingpin.ParseContext) (err error) {
 
 	cfg.Name = ""
 
-	_, err = prepareHelper("", natsOpts()...)
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "could not create Stream")
 
-	_, err = jsm.NewStreamTemplate(c.stream, uint32(c.maxStreams), cfg)
+	_, err = mgr.NewStreamTemplate(c.stream, uint32(c.maxStreams), cfg)
 	kingpin.FatalIfError(err, "could not create Stream Template")
 
 	fmt.Printf("Stream Template %s was created\n\n", c.stream)
@@ -364,13 +369,13 @@ func (c *streamCmd) streamTemplateAdd(pc *kingpin.ParseContext) (err error) {
 }
 
 func (c *streamCmd) streamTemplateInfo(_ *kingpin.ParseContext) error {
-	_, err := prepareHelper("", natsOpts()...)
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	c.stream, err = selectStreamTemplate(c.stream, c.force)
+	c.stream, err = selectStreamTemplate(mgr, c.stream, c.force)
 	kingpin.FatalIfError(err, "could not pick a Stream Template to operate on")
 
-	info, err := jsm.LoadStreamTemplate(c.stream)
+	info, err := mgr.LoadStreamTemplate(c.stream)
 	kingpin.FatalIfError(err, "could not load Stream Template %q", c.stream)
 
 	if c.json {
@@ -401,10 +406,10 @@ func (c *streamCmd) streamTemplateInfo(_ *kingpin.ParseContext) error {
 }
 
 func (c *streamCmd) streamTemplateLs(_ *kingpin.ParseContext) error {
-	_, err := prepareHelper("", natsOpts()...)
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	names, err := jsm.StreamTemplateNames()
+	names, err := mgr.StreamTemplateNames()
 	kingpin.FatalIfError(err, "could not list Stream Templates")
 
 	if c.json {
@@ -429,7 +434,7 @@ func (c *streamCmd) streamTemplateLs(_ *kingpin.ParseContext) error {
 }
 
 func (c *streamCmd) reportAction(_ *kingpin.ParseContext) error {
-	_, err := prepareHelper("", natsOpts()...)
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
 	type stat struct {
@@ -446,7 +451,7 @@ func (c *streamCmd) reportAction(_ *kingpin.ParseContext) error {
 	}
 
 	stats := []stat{}
-	jsm.EachStream(func(stream *jsm.Stream) {
+	mgr.EachStream(func(stream *jsm.Stream) {
 		info, err := stream.LatestInformation()
 		kingpin.FatalIfError(err, "could not get stream info for %s", stream.Name())
 		stats = append(stats, stat{info.Config.Name, info.State.Consumers, int64(info.State.Msgs), info.State.Bytes, info.Config.Storage.String(), info.Config.Template})
@@ -565,7 +570,7 @@ func (c *streamCmd) copyAndEditStream(cfg api.StreamConfig) (api.StreamConfig, e
 func (c *streamCmd) editAction(pc *kingpin.ParseContext) error {
 	c.connectAndAskStream()
 
-	sourceStream, err := jsm.LoadStream(c.stream)
+	sourceStream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not request Stream %s configuration", c.stream)
 
 	cfg, err := c.copyAndEditStream(sourceStream.Configuration())
@@ -613,7 +618,7 @@ func (c *streamCmd) cpAction(pc *kingpin.ParseContext) error {
 
 	c.connectAndAskStream()
 
-	sourceStream, err := jsm.LoadStream(c.stream)
+	sourceStream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not request Stream %s configuration", c.stream)
 
 	cfg, err := c.copyAndEditStream(sourceStream.Configuration())
@@ -621,7 +626,7 @@ func (c *streamCmd) cpAction(pc *kingpin.ParseContext) error {
 
 	cfg.Name = c.destination
 
-	new, err := jsm.NewStreamFromDefault(cfg.Name, cfg)
+	new, err := c.mgr.NewStreamFromDefault(cfg.Name, cfg)
 	kingpin.FatalIfError(err, "could not create Stream")
 
 	if !c.json {
@@ -717,7 +722,7 @@ func (c *streamCmd) showStreamInfo(info *api.StreamInfo) {
 func (c *streamCmd) infoAction(_ *kingpin.ParseContext) error {
 	c.connectAndAskStream()
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not request Stream info")
 	err = c.showStream(stream)
 	kingpin.FatalIfError(err, "could not show stream")
@@ -967,10 +972,10 @@ func (c *streamCmd) addAction(pc *kingpin.ParseContext) (err error) {
 		return ioutil.WriteFile(c.outFile, j, 0644)
 	}
 
-	_, err = prepareHelper("", natsOpts()...)
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "could not create Stream")
 
-	str, err := jsm.NewStreamFromDefault(c.stream, cfg)
+	str, err := mgr.NewStreamFromDefault(c.stream, cfg)
 	kingpin.FatalIfError(err, "could not create Stream")
 
 	fmt.Printf("Stream %s was created\n\n", c.stream)
@@ -992,7 +997,7 @@ func (c *streamCmd) rmAction(_ *kingpin.ParseContext) (err error) {
 		}
 	}
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not remove Stream")
 
 	err = stream.Delete()
@@ -1013,7 +1018,7 @@ func (c *streamCmd) purgeAction(pc *kingpin.ParseContext) (err error) {
 		}
 	}
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not purge Stream")
 
 	err = stream.Purge()
@@ -1024,11 +1029,11 @@ func (c *streamCmd) purgeAction(pc *kingpin.ParseContext) (err error) {
 	return nil
 }
 
-func (c *streamCmd) lsAction(_ *kingpin.ParseContext) (err error) {
-	_, err = prepareHelper("", natsOpts()...)
+func (c *streamCmd) lsAction(_ *kingpin.ParseContext) error {
+	_, mgr, err := prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	streams, err := jsm.StreamNames()
+	streams, err := mgr.StreamNames()
 	kingpin.FatalIfError(err, "could not list Streams")
 
 	if c.json {
@@ -1117,7 +1122,7 @@ func (c *streamCmd) rmMsgAction(_ *kingpin.ParseContext) (err error) {
 		c.msgID = int64(idint)
 	}
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not load Stream %s", c.stream)
 
 	if !c.force {
@@ -1148,7 +1153,7 @@ func (c *streamCmd) getAction(_ *kingpin.ParseContext) (err error) {
 		c.msgID = int64(idint)
 	}
 
-	stream, err := jsm.LoadStream(c.stream)
+	stream, err := c.mgr.LoadStream(c.stream)
 	kingpin.FatalIfError(err, "could not load Stream %s", c.stream)
 
 	item, err := stream.ReadMessage(int(c.msgID))
@@ -1180,9 +1185,11 @@ func (c *streamCmd) getAction(_ *kingpin.ParseContext) (err error) {
 }
 
 func (c *streamCmd) connectAndAskStream() {
-	_, err := prepareHelper("", natsOpts()...)
+	var err error
+
+	c.nc, c.mgr, err = prepareHelper("", natsOpts()...)
 	kingpin.FatalIfError(err, "setup failed")
 
-	c.stream, err = selectStream(c.stream, c.force)
+	c.stream, err = selectStream(c.mgr, c.stream, c.force)
 	kingpin.FatalIfError(err, "could not pick a Stream to operate on")
 }

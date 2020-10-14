@@ -29,6 +29,7 @@ type SrvRequestCmd struct {
 	name    string
 	host    string
 	cluster string
+	account string
 
 	limit   int
 	offset  int
@@ -83,6 +84,10 @@ func configureServerRequestCommand(srv *kingpin.CmdClause) {
 	leafz := req.Command("leafnodes", "Show leafnode details").Alias("leaf").Alias("leafz").Action(c.leafz)
 	leafz.Arg("wait", "Wait for a certain number of responses").Default("1").IntVar(&c.waitFor)
 	leafz.Flag("subscriptions", "Show subscription detail").Default("false").BoolVar(&c.detail)
+
+	accountz := req.Command("accounts", "Show account defailts").Alias("accountz").Alias("acct").Action(c.accountz)
+	accountz.Arg("wait", "Wait for a certain number of responses").Default("1").IntVar(&c.waitFor)
+	accountz.Flag("account", "Retrieve information for a specific account").StringVar(&c.account)
 }
 
 func (c *SrvRequestCmd) reqFilter() server.EventFilterOptions {
@@ -93,8 +98,32 @@ func (c *SrvRequestCmd) reqFilter() server.EventFilterOptions {
 	}
 }
 
+func (c *SrvRequestCmd) accountz(_ *kingpin.ParseContext) error {
+	nc, _, err := prepareHelper("", natsOpts()...)
+	if err != nil {
+		return err
+	}
+
+	opts := server.AccountzEventOptions{
+		AccountzOptions:    server.AccountzOptions{Account: c.account},
+		EventFilterOptions: c.reqFilter(),
+	}
+
+	res, err := c.doReq("ACCOUNTZ", &opts, nc)
+	if err != nil {
+		return err
+	}
+
+	for _, m := range res {
+		fmt.Println(string(m))
+	}
+
+	return nil
+
+}
+
 func (c *SrvRequestCmd) leafz(_ *kingpin.ParseContext) error {
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
@@ -114,7 +143,6 @@ func (c *SrvRequestCmd) leafz(_ *kingpin.ParseContext) error {
 	}
 
 	return nil
-
 }
 
 func (c *SrvRequestCmd) gwyz(_ *kingpin.ParseContext) error {
@@ -122,7 +150,7 @@ func (c *SrvRequestCmd) gwyz(_ *kingpin.ParseContext) error {
 		c.detail = true
 	}
 
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
@@ -149,7 +177,7 @@ func (c *SrvRequestCmd) gwyz(_ *kingpin.ParseContext) error {
 }
 
 func (c *SrvRequestCmd) routez(_ *kingpin.ParseContext) error {
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
@@ -199,7 +227,7 @@ func (c *SrvRequestCmd) conns(_ *kingpin.ParseContext) error {
 		opts.State = 2
 	}
 
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
@@ -218,7 +246,7 @@ func (c *SrvRequestCmd) conns(_ *kingpin.ParseContext) error {
 }
 
 func (c *SrvRequestCmd) varz(_ *kingpin.ParseContext) error {
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
@@ -242,7 +270,7 @@ func (c *SrvRequestCmd) varz(_ *kingpin.ParseContext) error {
 }
 
 func (c *SrvRequestCmd) subs(_ *kingpin.ParseContext) error {
-	nc, err := prepareHelper("", natsOpts()...)
+	nc, _, err := prepareHelper("", natsOpts()...)
 	if err != nil {
 		return err
 	}
