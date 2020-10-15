@@ -65,6 +65,8 @@ type streamCmd struct {
 	showProgress        bool
 	healthCheck         bool
 	dupeWindow          string
+	startSequence       int
+	messageCount        int
 }
 
 func configureStreamCommand(app *kingpin.Application) {
@@ -121,6 +123,11 @@ func configureStreamCommand(app *kingpin.Application) {
 
 	strLs := str.Command("ls", "List all known Streams").Alias("list").Alias("l").Action(c.lsAction)
 	strLs.Flag("json", "Produce JSON output").Short('j').BoolVar(&c.json)
+
+	strLmsgs := str.Command("lms", "List # messages in Stream from seq nbr").Alias("listmsgs").Alias("lm").Action(c.lmsAction)
+	strLmsgs.Arg("stream", "Stream name").StringVar(&c.stream)
+	strLmsgs.Arg("startseq", "Starting Seq number (default: 1)").IntVar(&c.startSequence)
+	strLmsgs.Arg("msgCount", "Number of messages (max: 10)").IntVar(&c.messageCount)
 
 	strPurge := str.Command("purge", "Purge a Stream without deleting it").Action(c.purgeAction)
 	strPurge.Arg("stream", "Stream name").StringVar(&c.stream)
@@ -1038,6 +1045,55 @@ func (c *streamCmd) lsAction(_ *kingpin.ParseContext) (err error) {
 		fmt.Printf("\t%s\n", s)
 	}
 	fmt.Println()
+
+	return nil
+}
+
+func (c *streamCmd) lmsAction(_ *kingpin.ParseContext) (err error) {
+	_, err = prepareHelper("", natsOpts()...)
+	kingpin.FatalIfError(err, "setup failed")
+
+	c.stream, err = selectStream(c.stream, c.force)
+	kingpin.FatalIfError(err, "could not select Stream")
+
+	var (
+		stream  *jsm.Stream
+		msg     *api.StoredMsg
+		lastSeq int
+	)
+	stream, err = jsm.LoadStream(c.stream)
+	kingpin.FatalIfError(err, "could not request Stream info")
+
+	if c.startSequence < 1 {
+		c.startSequence = 1
+	}
+	if c.messageCount > 1 && c.messageCount < 10 {
+		lastSeq = c.startSequence + c.messageCount - 1
+	} else if c.messageCount == 1 {
+		lastSeq = c.startSequence
+	} else {
+		lastSeq = c.startSequence + 9
+	}
+
+	fmt.Printf("Pulling seq numbers %v to %v from %v\n", c.startSequence, lastSeq, c.stream)
+	for seq := c.startSequence; seq <= lastSeq; seq++ {
+		msg, err = stream.ReadMessage(seq)
+		if msg == nil {
+			if strings.Contains(err.Error(), "no message") {
+				fmt.Printf("Item: %v#%v:%v\n", c.stream, seq, err.Error())
+			} else {
+				kingpin.FatalIfError(err, "No more messages")
+			}
+		} else {
+			if c.json {
+				err = printJSON(msg)
+				kingpin.FatalIfError(err, "could not display Streams")
+			} else {
+				fmt.Printf("Item: %s#%d received %v on Subject %s\n", c.stream, msg.Sequence, msg.Time, msg.Subject)
+				fmt.Printf("Data: %v\n", string(msg.Data))
+			}
+		}
+	}
 
 	return nil
 }
