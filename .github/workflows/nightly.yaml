@@ -15,11 +15,10 @@ jobs:
         with:
           go-version: 1.14
 
-      - name: goreleaser
-        uses: goreleaser/goreleaser-action@v2
-        with:
-          version: latest
-          args: release --snapshot --config .goreleaser-nightly.yml
+      - name: docker_build
+        run: |
+          NDATE=$(date +%Y%m%d)
+          docker build -f Dockerfile --tag synadia/jsm:nightly-${NDATE} --tag synadia/jsm:nightly .
 
       - name: images
         run: |
