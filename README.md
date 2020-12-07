@@ -310,12 +310,14 @@ jetstream {
 
 ## Administration and Usage from the CLI
 
-Once the server is running it's time to use the management tool. This can be downloaded from the [GitHub Release Page](https://github.com/nats-io/jetstream/releases/) or you can use the `synadia/jsm:latest` docker image.
+Once the server is running it's time to use the management tool. This can be downloaded from the [GitHub Release Page](https://github.com/nats-io/natscli/releases/) or you can use the `synadia/jsm:latest` docker image. On OS X homebrew can be used to install the latest version:
 
-```
+```nohighlight
+$ brew tap nats-io/nats-tools
+$ brew install nats-io/nats-tools/nats
 $ nats --help
 usage: nats [<flags>] <command> [<args> ...]
-NATS Management Utility
+NATS Utility
 
 Flags:
       --help                     Show context-sensitive help (also try --help-long and --help-man).
@@ -345,10 +347,23 @@ JetStream is multi-tenant so you will need to check that your account is enabled
 
 ```nohighlight
 $ nats account info
+Connection Information:
 
-      Memory: 0 B of 6.4 GB
-     Storage: 0 B of 1.1 TB
-     Streams: 1 of Unlimited
+               Client ID: 8
+               Client IP: 127.0.0.1
+                     RTT: 178.545µs
+       Headers Supported: true
+         Maximum Payload: 1.0 MiB
+           Connected URL: nats://localhost:4222
+       Connected Address: 127.0.0.1:4222
+     Connected Server ID: NCCOHA6ONXJOGAEZP4WPU4UJ3IQP2VVXEPRKTQCGBCW4IL4YYW4V4KKL
+
+JetStream Account Information:
+
+           Memory: 0 B of 5.7 GiB
+          Storage: 0 B of 11 GiB
+          Streams: 0 of Unlimited
+   Max Consumers: unlimited
 ```
 
 ### Streams
