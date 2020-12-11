@@ -105,7 +105,7 @@
                     "file",
                     "memory"
                   ],
-                  "default": "memory"
+                  "default": "file"
                 },
                 "num_replicas": {
                   "description": "How many replicas to keep for each message.",
