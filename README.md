@@ -832,7 +832,7 @@ Typically, NATS is monitored via HTTP endpoints like `/varz`, we do not at this 
 
 JetStream publish a number of advisories that can inform operations about health and state of the Streams.  These advisories are published to normal NATS subjects below `$JS.EVENT.ADVISORY.>` and one can store these advisories in JetStream Streams if desired.
 
-The command `nats event --js-advsiroy` can view all these events on your console. The Golang package [jsm.go](https://github.com/nats-io/jsm.go) can consume and render these events and have data types for each of these events.
+The command `nats event --js-advisory` can view all these events on your console. The Golang package [jsm.go](https://github.com/nats-io/jsm.go) can consume and render these events and have data types for each of these events.
 
 All these events have JSON Schemas that describe them, schemas can be viewed on the CLI using the `nats schema show <schema kind>` command.
 
