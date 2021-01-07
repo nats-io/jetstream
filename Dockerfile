@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine AS SERVER
+FROM golang:1.15-alpine AS SERVER
 
 RUN apk add --update git
 RUN mkdir -p src/github.com/nats-io && \
