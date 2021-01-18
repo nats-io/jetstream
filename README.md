@@ -31,6 +31,10 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
     + [Querying](#querying-1)
     + [Consuming Pull-Based Consumers](#consuming-pull-based-consumers)
     + [Consuming Push-Based Consumers](#consuming-push-based-consumers)
+- [Clustering](#clustering)
+  * [Design](#design)
+  * [Configuration](#configuration-1)
+  * [Docker](#docker)
 - [Monitoring](#monitoring)
   * [Server Metrics](#server-metrics)
   * [Advisories](#advisories)
@@ -62,7 +66,7 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
   * [Consumer Message Rates](#consumer-message-rates)
   * [Stream Templates](#stream-templates)
   * [Ack Sampling](#ack-sampling)
-    + [Configuration](#configuration-1)
+    + [Configuration](#configuration-2)
     + [Consuming](#consuming)
   * [Storage Overhead](#storage-overhead)
 - [NATS API Reference](#nats-api-reference)
@@ -82,13 +86,6 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
 - [`nats` CLI](#-nats--cli)
   * [Configuration Contexts](#configuration-contexts)
 - [Next Steps](#next-steps)
-- [Discussion Items](#discussion-items)
-  * [DLQ (Dead Letter Queue)](#dlq--dead-letter-queue-)
-  * [Purge or Truncate (not everything)](#purge-or-truncate--not-everything-)
-  * [NAK w/ Duration Before Redelivery](#nak-w--duration-before-redelivery)
-  * [MsgSet Immutable?](#msgset-immutable-)
-  * [DR/Mirror](#dr-mirror)
-  * [Account Template to Auto-create msgSets.](#account-template-to-auto-create-msgsets)
   
 ## Concepts
 
