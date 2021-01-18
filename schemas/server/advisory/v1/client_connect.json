@@ -124,8 +124,8 @@
           "description": "The version of the client library in use"
         },
         "rtt": {
-          "type": "string",
-          "description": "The last known latency between the NATS Server and the Client"
+          "type": "number",
+          "description": "The last known latency between the NATS Server and the Client in nanoseconds"
         }
       }
     }

@@ -3,52 +3,6 @@
   "$id": "https://nats.io/schemas/jetstream/advisory/v1/api_audit.json",
   "description": "Advisory published when the JetStream API is accessed across the network",
   "title": "io.nats.jetstream.advisory.v1.api_audit",
-  "definitions": {
-    "client_api_audit": {
-      "type": "object",
-      "required": [
-        "host",
-        "port",
-        "cid",
-        "account"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "host": {
-          "type": "string",
-          "description": "The IP address where the client connects from"
-        },
-        "port": {
-          "type": "integer",
-          "description": "The port number where the client connects from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID the server assigned to the connection"
-        },
-        "account": {
-          "type": "string",
-          "description": "The account the user belongs to"
-        },
-        "user": {
-          "type": "string",
-          "description": "The username that was used during authentication, if any"
-        },
-        "name": {
-          "type": "string",
-          "description": "The name the client assigned to the connection during connection negotiation"
-        },
-        "language": {
-          "type": "string",
-          "description": "The client library language used to create the connection"
-        },
-        "version": {
-          "type": "string",
-          "description": "The version client library used to create the connection"
-        }
-      }
-    }
-  },
   "type": "object",
   "required": [
     "type",
@@ -94,45 +48,54 @@
     },
     "client": {
       "type": "object",
-      "required": [
-        "host",
-        "port",
-        "cid",
-        "account"
-      ],
       "additionalProperties": false,
+      "description": "Details about the client that connected to the server",
+      "required": [
+        "id",
+        "acc"
+      ],
       "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the client connected"
+        },
+        "stop": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the client disconnected"
+        },
         "host": {
           "type": "string",
-          "description": "The IP address where the client connects from"
+          "description": "The remote host the client is connected from"
         },
-        "port": {
-          "type": "integer",
-          "description": "The port number where the client connects from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID the server assigned to the connection"
-        },
-        "account": {
+        "id": {
           "type": "string",
-          "description": "The account the user belongs to"
+          "description": "The internally assigned client ID for this connection"
+        },
+        "acc": {
+          "type": "string",
+          "description": "The account this user logged in to"
         },
         "user": {
           "type": "string",
-          "description": "The username that was used during authentication, if any"
+          "description": "The clients username"
         },
         "name": {
           "type": "string",
-          "description": "The name the client assigned to the connection during connection negotiation"
+          "description": "The name presented by the client during connection"
         },
-        "language": {
+        "lang": {
           "type": "string",
-          "description": "The client library language used to create the connection"
+          "description": "The programming language library in use by the client"
         },
-        "version": {
+        "ver": {
           "type": "string",
-          "description": "The version client library used to create the connection"
+          "description": "The version of the client library in use"
+        },
+        "rtt": {
+          "type": "number",
+          "description": "The last known latency between the NATS Server and the Client in nanoseconds"
         }
       }
     }

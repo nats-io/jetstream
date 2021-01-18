@@ -3,55 +3,6 @@
   "$id": "https://nats.io/schemas/server/metric/v1/service_latency.json",
   "description": "Metric published about sampled service requests showing request status and latencies",
   "title": "io.nats.server.metric.v1.service_latency",
-  "definitions": {
-    "latency_client": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["acc" ,"rtt"],
-      "properties": {
-        "acc": {
-          "type": "string",
-          "description": "The account the client belongs to"
-        },
-        "rtt": {
-          "type": "integer",
-          "description": "The latency between the client and the server"
-        },
-        "start":{
-          "type": "string",
-          "description": "The time this client connected to the server, in RFC3339 format",
-        },
-        "user": {
-          "type": "string",
-          "description": "The username of the connected client"
-        },
-        "name": {
-          "type": "string",
-          "description": "The connection name declared while connecting"
-        },
-        "lang": {
-          "type": "string",
-          "description": "The language the client is programmed in"
-        },
-        "ver": {
-          "type": "string",
-          "description": "The version of the client library"
-        },
-        "ip": {
-          "type": "string",
-          "description": "The IP address the client is connecting from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID assigned by the server"
-        },
-        "server": {
-          "type": "string",
-          "description": "The server name where the client is connected"
-        }
-      }
-    }
-  },
   "type":"object",
   "required":[
     "type",
@@ -79,11 +30,11 @@
     },
     "requestor": {
       "description": "Details about the service requestor",
-      "$ref": "#/definitions/latency_client"
+      "$ref": "../../../definitions.json#/definitions/client_info_v1"
     },
     "responder": {
       "description": "Details about the service responder",
-      "$ref": "#/definitions/latency_client"
+      "$ref": "../../../definitions.json#/definitions/client_info_v1"
     },
     "header": {
       "description": "When header based latency is enabled, the headers that triggered the event",

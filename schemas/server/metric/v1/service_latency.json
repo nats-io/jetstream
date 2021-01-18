@@ -3,58 +3,6 @@
   "$id": "https://nats.io/schemas/server/metric/v1/service_latency.json",
   "description": "Metric published about sampled service requests showing request status and latencies",
   "title": "io.nats.server.metric.v1.service_latency",
-  "definitions": {
-    "latency_client": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "acc",
-        "rtt"
-      ],
-      "properties": {
-        "acc": {
-          "type": "string",
-          "description": "The account the client belongs to"
-        },
-        "rtt": {
-          "type": "integer",
-          "description": "The latency between the client and the server"
-        },
-        "start": {
-          "type": "string",
-          "description": "The time this client connected to the server, in RFC3339 format"
-        },
-        "user": {
-          "type": "string",
-          "description": "The username of the connected client"
-        },
-        "name": {
-          "type": "string",
-          "description": "The connection name declared while connecting"
-        },
-        "lang": {
-          "type": "string",
-          "description": "The language the client is programmed in"
-        },
-        "ver": {
-          "type": "string",
-          "description": "The version of the client library"
-        },
-        "ip": {
-          "type": "string",
-          "description": "The IP address the client is connecting from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID assigned by the server"
-        },
-        "server": {
-          "type": "string",
-          "description": "The server name where the client is connected"
-        }
-      }
-    }
-  },
   "type": "object",
   "required": [
     "type",
@@ -85,49 +33,51 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "acc",
-        "rtt"
+        "id",
+        "acc"
       ],
       "properties": {
-        "acc": {
-          "type": "string",
-          "description": "The account the client belongs to"
-        },
-        "rtt": {
-          "type": "integer",
-          "description": "The latency between the client and the server"
-        },
         "start": {
           "type": "string",
-          "description": "The time this client connected to the server, in RFC3339 format"
+          "format": "date-time",
+          "description": "Timestamp when the client connected"
+        },
+        "stop": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the client disconnected"
+        },
+        "host": {
+          "type": "string",
+          "description": "The remote host the client is connected from"
+        },
+        "id": {
+          "type": "string",
+          "description": "The internally assigned client ID for this connection"
+        },
+        "acc": {
+          "type": "string",
+          "description": "The account this user logged in to"
         },
         "user": {
           "type": "string",
-          "description": "The username of the connected client"
+          "description": "The clients username"
         },
         "name": {
           "type": "string",
-          "description": "The connection name declared while connecting"
+          "description": "The name presented by the client during connection"
         },
         "lang": {
           "type": "string",
-          "description": "The language the client is programmed in"
+          "description": "The programming language library in use by the client"
         },
         "ver": {
           "type": "string",
-          "description": "The version of the client library"
+          "description": "The version of the client library in use"
         },
-        "ip": {
-          "type": "string",
-          "description": "The IP address the client is connecting from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID assigned by the server"
-        },
-        "server": {
-          "type": "string",
-          "description": "The server name where the client is connected"
+        "rtt": {
+          "type": "number",
+          "description": "The last known latency between the NATS Server and the Client in nanoseconds"
         }
       }
     },
@@ -136,49 +86,51 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "acc",
-        "rtt"
+        "id",
+        "acc"
       ],
       "properties": {
-        "acc": {
-          "type": "string",
-          "description": "The account the client belongs to"
-        },
-        "rtt": {
-          "type": "integer",
-          "description": "The latency between the client and the server"
-        },
         "start": {
           "type": "string",
-          "description": "The time this client connected to the server, in RFC3339 format"
+          "format": "date-time",
+          "description": "Timestamp when the client connected"
+        },
+        "stop": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the client disconnected"
+        },
+        "host": {
+          "type": "string",
+          "description": "The remote host the client is connected from"
+        },
+        "id": {
+          "type": "string",
+          "description": "The internally assigned client ID for this connection"
+        },
+        "acc": {
+          "type": "string",
+          "description": "The account this user logged in to"
         },
         "user": {
           "type": "string",
-          "description": "The username of the connected client"
+          "description": "The clients username"
         },
         "name": {
           "type": "string",
-          "description": "The connection name declared while connecting"
+          "description": "The name presented by the client during connection"
         },
         "lang": {
           "type": "string",
-          "description": "The language the client is programmed in"
+          "description": "The programming language library in use by the client"
         },
         "ver": {
           "type": "string",
-          "description": "The version of the client library"
+          "description": "The version of the client library in use"
         },
-        "ip": {
-          "type": "string",
-          "description": "The IP address the client is connecting from"
-        },
-        "cid": {
-          "type": "integer",
-          "description": "The unique client ID assigned by the server"
-        },
-        "server": {
-          "type": "string",
-          "description": "The server name where the client is connected"
+        "rtt": {
+          "type": "number",
+          "description": "The last known latency between the NATS Server and the Client in nanoseconds"
         }
       }
     },
