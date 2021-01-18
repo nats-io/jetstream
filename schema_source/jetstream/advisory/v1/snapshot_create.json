@@ -43,7 +43,7 @@
       "minimum": 1
     },
     "client": {
-      "$ref": "api_audit.json#/definitions/client_api_audit"
+      "$ref": "../../../definitions.json#/definitions/client_info_v1"
     }
   }
 }

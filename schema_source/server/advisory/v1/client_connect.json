@@ -30,7 +30,7 @@
       "$ref": "definitions.json#/definitions/server"
     },
     "client": {
-      "$ref": "definitions.json#/definitions/client"
+      "$ref": "../../../definitions.json#/definitions/client_info_v1"
     }
   }
 }

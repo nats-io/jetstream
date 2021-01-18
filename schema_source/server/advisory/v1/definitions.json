@@ -20,59 +20,6 @@
         }
       }
     },
-    "client": {
-      "type": "object",
-      "additionalProperties": false,
-      "description": "Details about the client that connected to the server",
-      "required": [
-        "id",
-        "acc"
-      ],
-      "properties": {
-        "start": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp when the client connected"
-        },
-        "stop": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp when the client disconnected"
-        },
-        "host": {
-          "type": "string",
-          "description": "The remote host the client is connected from"
-        },
-        "id": {
-          "type": "string",
-          "description": "The internally assigned client ID for this connection"
-        },
-        "acc": {
-          "type": "string",
-          "description": "The account this user logged in to"
-        },
-        "user": {
-          "type": "string",
-          "description": "The clients username"
-        },
-        "name": {
-          "type": "string",
-          "description": "The name presented by the client during connection"
-        },
-        "lang": {
-          "type": "string",
-          "description": "The programming language library in use by the client"
-        },
-        "ver": {
-          "type": "string",
-          "description": "The version of the client library in use"
-        },
-        "rtt": {
-          "type": "string",
-          "description": "The last known latency between the NATS Server and the Client"
-        }
-      }
-    },
     "server": {
       "type": "object",
       "additionalProperties": false,
