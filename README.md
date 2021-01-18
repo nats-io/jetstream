@@ -132,7 +132,7 @@ When defining Streams the items below make up the entire configuration of the se
 |MaxConsumers|How many Consumers can be defined for a given Stream, `-1` for unlimited|
 |Name|A name for the Stream that may not have spaces, tabs or `.`|
 |NoAck|Disables acknowledging messages that are received by the Stream|
-|Replicas|How many replicas to keep for each message (not implemented as of January 2020)|
+|Replicas|How many replicas to keep for each message in a clustered JetStream, maximum 5|
 |Retention|How message retention is considered, `LimitsPolicy` (default), `InterestPolicy` or `WorkQueuePolicy`|
 |Discard|When a Stream reached it's limits either, `DiscardNew` refuses new messages while `DiscardOld` (default) deletes old messages| 
 |Storage|The type of storage backend, `file` and `memory` as of January 2020|
