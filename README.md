@@ -822,6 +822,50 @@ Note the subject here of the received message is reported as `ORDERS.processed` 
 
 This Consumer needs no ack, so any new message into the ORDERS system will show up here in real time.
 
+## Clustering
+
+**WARNING: Clustered JetStream is an Alpha level feature**
+
+Clustering allow JetStream to span multiple servers and provide a highly available data storage service in a share-nothing manner.
+
+Once a JetStream cluster is operating interactions with the CLI and with `nats` CLI is the same as before, today we do not yet have Administration tools surfaced in the CLI, as they get added this section will be updated.
+
+### Design
+
+JetStream clustering use the RAFT protocol to synchronize state and data within a cluster, JetStream manages 3 sets of RAFT groups:
+
+ * Meta Group - all servers join the Meta Group and the JetStream API is managed by this group
+ * Stream Group - each Stream creates a RAFT group, this group synchronizes state and data between its members
+ * Consumer Group - each Consumer creates a RAFT group, this group synchronizes consumer state between its members
+
+### Configuration
+
+There is very little extra work to do for clustered JetStream, the main thing is that you need to set a specific cluster name and server name.
+
+A sample configuration file for one server in a cluster is included here:
+
+```nohighlight
+server_name: S1
+port: 4222
+
+jetstream: true
+
+cluster {
+  name: JSC
+  listen: 0.0.0.0:4245
+
+  routes: [
+    nats://nats1.example.net:4245
+    nats://nats2.example.net:4245
+    nats://nats3.example.net:4245
+  ]
+}
+```
+
+### Docker
+
+Included in this repository is a `docker-compose.yaml` file that starts a 3 node cluster, it will persist data in `./jetstream-cluster/<server name>` and the 3 servers listens for client connections on ports `4222`, `4223` and `4224`
+
 ## Monitoring
 
 ### Server Metrics

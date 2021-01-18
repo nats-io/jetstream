@@ -1,0 +1,38 @@
+---
+version: '3'
+services:
+  n1.example.net:
+    container_name: n1
+    image: synadia/jsm:nightly
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name S1 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+    - nats
+    ports:
+    - 4222:4222
+
+  n2.example.net:
+    container_name: n2
+    image: synadia/jsm:nightly
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name S2 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+    - nats
+    ports:
+    - 4223:4222
+
+  n3.example.net:
+    container_name: n3
+    image: synadia/jsm:nightly
+    dns_search: example.net
+    entrypoint: /nats-server
+    command: --name S3 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+    networks:
+    - nats
+    ports:
+    - 4224:4222
+
+networks:
+  nats: {}
