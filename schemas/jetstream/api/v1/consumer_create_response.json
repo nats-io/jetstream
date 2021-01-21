@@ -236,6 +236,48 @@
           "description": "The number of messages left unconsumed in this Consumer",
           "type": "integer",
           "minimum": 0
+        },
+        "cluster": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The cluster name"
+            },
+            "leader": {
+              "type": "string",
+              "description": "The server name of the RAFT leader"
+            },
+            "replicas": {
+              "type": "array",
+              "description": "The members of the RAFT cluster",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "current",
+                  "last"
+                ],
+                "properties": {
+                  "name": {
+                    "description": "The server name of the peer",
+                    "type": "string",
+                    "minimum": 1
+                  },
+                  "current": {
+                    "description": "Indicates if the server is up to date and synchronised",
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "last": {
+                    "description": "Timestamp of the last contact time",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
