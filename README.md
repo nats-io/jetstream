@@ -379,6 +379,7 @@ $ nats str add ORDERS
 ? Message size limit -1
 ? Maximum message age limit 1y
 ? Maximum individual message size [? for help] (-1) -1
+? Number of replicas to store 3
 Stream ORDERS was created
 
 Information for Stream ORDERS
@@ -388,7 +389,7 @@ Configuration:
              Subjects: ORDERS.*
      Acknowledgements: true
             Retention: File - Limits
-             Replicas: 1
+             Replicas: 3
      Maximum Messages: -1
         Maximum Bytes: -1
           Maximum Age: 8760h0m0s
@@ -407,10 +408,10 @@ Statistics:
 You can get prompted interactively for missing information as above, or do it all on one command. Pressing `?` in the CLI will help you map prompts to CLI options:
 
 ```
-$ nats str add ORDERS --subjects "ORDERS.*" --ack --max-msgs=-1 --max-bytes=-1 --max-age=1y --storage file --retention limits --max-msg-size=-1 --discard old
+$ nats str add ORDERS --subjects "ORDERS.*" --ack --max-msgs=-1 --max-bytes=-1 --max-age=1y --storage file --retention limits --max-msg-size=-1 --discard old --replicas 3
 ```
 
-Additionally one can store the configuration in a JSON file, the format of this is the same as `$ nats str info ORDERS -j | jq .config`:
+Additionally, one can store the configuration in a JSON file, the format of this is the same as `$ nats str info ORDERS -j | jq .config`:
 
 ```
 $ nats str add ORDERS --config orders.json
@@ -484,6 +485,21 @@ $ nats str info ORDERS -j
 ```
 
 This is the general pattern for the entire `nats` utility as it relates to JetStream - prompting for needed information but every action can be run non-interactively making it usable as a cli api. All information output like seen above can be turned into JSON using `-j`.
+
+In clustered mode additional information will be included:
+
+```nohighlight
+$ nats str info ORDERS
+...
+Cluster Information:
+
+                 Name: JSC
+               Leader: S1
+              Replica: S3, current, seen 0.04s ago
+              Replica: S2, current, seen 0.04s ago
+```
+
+Here the cluster name is configured as `JSC`, there is a server `S1` that's the current leader with `S3` and `S2` are replicas. Both replicas are current and have been seen recently.
 
 #### Copying
 
@@ -858,6 +874,10 @@ cluster {
   ]
 }
 ```
+
+### Stream data replication
+
+Streams are replicated across the cluster using RAFT, the maximum number of replicas we support is 5, we suggest only 1, 3 or 5 be used for replica counts.
 
 ### Docker
 
