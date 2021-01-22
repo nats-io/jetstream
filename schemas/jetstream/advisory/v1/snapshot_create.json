@@ -102,7 +102,7 @@
         },
         "name_tag": {
           "type": "string",
-          "description": "The name from the JWT claim or account"
+          "description": "The name extracted from the user JWT claim"
         },
         "tags": {
           "type": "array",
