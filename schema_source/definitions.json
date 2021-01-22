@@ -11,7 +11,6 @@
       "additionalProperties": false,
       "description": "Details about the client that connected to the server",
       "required": [
-        "id",
         "acc"
       ],
       "properties": {
@@ -56,6 +55,25 @@
         "rtt": {
           "type": "number",
           "description": "The last known latency between the NATS Server and the Client in nanoseconds"
+        },
+        "jwt": {
+          "type": "string",
+          "description": "The JWT presented in the connection"
+        },
+        "issuer_key": {
+          "type": "string",
+          "description": "The public signing key or account identity key used to issue the user"
+        },
+        "name_tag": {
+          "type": "string",
+          "description": "The name from the JWT claim or account"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags extracted from the JWT"
         }
       }
     }
