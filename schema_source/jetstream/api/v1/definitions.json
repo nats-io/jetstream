@@ -7,7 +7,7 @@
   "definitions": {
     "peer_info": {
       "type": "object",
-      "required": ["name", "current", "last"],
+      "required": ["name", "current", "active"],
       "properties": {
         "name": {
           "description": "The server name of the peer",

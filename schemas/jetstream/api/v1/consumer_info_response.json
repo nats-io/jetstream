@@ -256,7 +256,7 @@
                 "required": [
                   "name",
                   "current",
-                  "last"
+                  "active"
                 ],
                 "properties": {
                   "name": {
