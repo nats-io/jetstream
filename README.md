@@ -801,11 +801,11 @@ Acknowledged message
 
 You can prevent ACKs by supplying `--no-ack`.
 
-To do this from code you'd send a `Request()` to `$JS.NEXT.ORDERS.DISPATCH`:
+To do this from code you'd send a `Request()` to `$JS.API.CONSUMER.MSG.NEXT.ORDERS.DISPATCH`:
 
 ```
-$ nats req '$JS.NEXT.ORDERS.DISPATCH' ''
-Published [$JS.NEXT.ORDERS.DISPATCH] : ''
+$ nats req '$JS.API.CONSUMER.MSG.NEXT.ORDERS.DISPATCH' ''
+Published [$JS.API.CONSUMER.MSG.NEXT.ORDERS.DISPATCH] : ''
 Received [ORDERS.processed] : 'order 3'
 ```
 
@@ -909,6 +909,10 @@ All these events have JSON Schemas that describe them, schemas can be viewed on 
 |Consumer maximum delivery reached|`$JS.EVENT.ADVISORY.CONSUMER.MAX_DELIVERIES.<STREAM>.<CONSUMER>`|`io.nats.jetstream.advisory.v1.max_deliver`|
 |Message delivery terminated using AckTerm|`$JS.EVENT.ADVISORY.CONSUMER.MSG_TERMINATED.<STREAM>.<CONSUMER>`|`io.nats.jetstream.advisory.v1.terminated`|
 |Message acknowledged in a sampled Consumer|`$JS.EVENT.METRIC.CONSUMER.ACK.<STREAM>.<CONSUMER>`|`io.nats.jetstream.metric.v1.consumer_ack`|
+|Clustered Stream elected a new leader|`$JS.EVENT.ADVISORY.STREAM.LEADER_ELECTED.<STREAM>`|`io.nats.jetstream.advisory.v1.stream_leader_elected`|
+|Clustered Stream lost quorum|`$JS.EVENT.ADVISORY.STREAM.QUORUM_LOST.<STREAM>`|`io.nats.jetstream.advisory.v1.stream_quorum_lost`
+|Clustered Consumer elected a new leader|`$JS.EVENT.ADVISORY.CONSUMER.LEADER_ELECTED.<STREAM>.<CONSUMER>`|`io.nats.jetstream.advisory.v1.consumer_leader_elected`|
+|Clustered Consumer lost quorum|`$JS.EVENT.ADVISORY.CONSUMER.QUORUM_LOST.<STREAM>.<CONSUMER>`|`io.nats.jetstream.advisory.v1.consumer_quorum_lost`|
 
 ### Dashboards
 
@@ -1906,9 +1910,24 @@ Events and Advisories:
 ```
 $JS.EVENT.METRIC.CONSUMER_ACK.<stream>.<consumer>
 $JS.EVENT.ADVISORY.MAX_DELIVERIES.<stream>.<consumer>
+$JS.EVENT.ADVISORY.CONSUMER.MSG_TERMINATED.<stream>.<consumer>
+$JS.EVENT.ADVISORY.STREAM.CREATED.<stream>
+$JS.EVENT.ADVISORY.STREAM.DELETED.<stream>
+$JS.EVENT.ADVISORY.STREAM.UPDATED.<stream>
+$JS.EVENT.ADVISORY.CONSUMER.CREATED.<stream>.<consumer>
+$JS.EVENT.ADVISORY.CONSUMER.DELETED.<stream>.<consumer>
+$JS.EVENT.ADVISORY.STREAM.SNAPSHOT_CREATE.<stream>
+$JS.EVENT.ADVISORY.STREAM.SNAPSHOT_COMPLETE.<stream>
+$JS.EVENT.ADVISORY.STREAM.RESTORE_CREATE.<stream>
+$JS.EVENT.ADVISORY.STREAM.RESTORE_COMPLETE.<stream>
+$JS.EVENT.ADVISORY.STREAM.LEADER_ELECTED.<stream>
+$JS.EVENT.ADVISORY.STREAM.QUORUM_LOST.<stream>
+$JS.EVENT.ADVISORY.CONSUMER.LEADER_ELECTED.<stream>.<consumer>
+$JS.EVENT.ADVISORY.CONSUMER.QUORUM_LOST.<stream>.<consumer>
+$JS.EVENT.ADVISORY.API
 ```
 
-This allow you to easily create ACL rules that limit users to a specific Stream or Consumer and to specific verbs for administration purposes. For ensuring only the receiver of a message can Ack it we have response permissions ensuring you can only Publish to Response subject for messages you received.
+This design allow you to easily create ACL rules that limit users to a specific Stream or Consumer and to specific verbs for administration purposes. For ensuring only the receiver of a message can Ack it we have response permissions ensuring you can only Publish to Response subject for messages you received.
 
 ### Acknowledging Messages
 
