@@ -45,9 +45,25 @@
         }
       }
     },
+    "api_stats": {
+      "type": "object",
+      "required": ["total", "errors"],
+      "properties": {
+        "total": {
+          "description": "Total number of API requests received for this account",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "errors": {
+          "description": "API requests that resulted in an error response",
+          "minimum": 0,
+          "type": "integer"
+        }
+      }
+    },
     "account_stats": {
       "type": "object",
-      "required": ["memory", "storage", "streams", "limits"],
+      "required": ["memory", "storage", "streams", "limits", "api", "consumers"],
       "properties": {
         "memory": {
           "description": "Memory Storage being used for Stream Message storage",
@@ -64,8 +80,16 @@
           "type": "integer",
           "minimum": 0
         },
+        "consumers": {
+          "description": "Number of active Consumers",
+          "type": "integer",
+          "minimum": 0
+        },
         "limits": {
           "$ref": "#/definitions/account_limits"
+        },
+        "api": {
+          "$ref": "#/definitions/api_stats"
         }
       }
     },
