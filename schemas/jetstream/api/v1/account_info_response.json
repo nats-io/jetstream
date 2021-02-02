@@ -14,7 +14,9 @@
         "memory",
         "storage",
         "streams",
-        "limits"
+        "limits",
+        "api",
+        "consumers"
       ],
       "properties": {
         "memory": {
@@ -29,6 +31,11 @@
         },
         "streams": {
           "description": "Number of active Streams",
+          "type": "integer",
+          "minimum": 0
+        },
+        "consumers": {
+          "description": "Number of active Consumers",
           "type": "integer",
           "minimum": 0
         },
@@ -61,6 +68,25 @@
               "type": "integer",
               "description": "The maximum number of Consumer an account can create",
               "minimum": -1
+            }
+          }
+        },
+        "api": {
+          "type": "object",
+          "required": [
+            "total",
+            "errors"
+          ],
+          "properties": {
+            "total": {
+              "description": "Total number of API requests received for this account",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "errors": {
+              "description": "API requests that resulted in an error response",
+              "minimum": 0,
+              "type": "integer"
             }
           }
         }
