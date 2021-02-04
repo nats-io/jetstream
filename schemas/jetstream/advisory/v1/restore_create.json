@@ -80,6 +80,14 @@
           "type": "number",
           "description": "The last known latency between the NATS Server and the Client in nanoseconds"
         },
+        "server": {
+          "type": "string",
+          "description": "The server that the client was connected to"
+        },
+        "cluster": {
+          "type": "string",
+          "description": "The cluster name the server is connected to"
+        },
         "jwt": {
           "type": "string",
           "description": "The JWT presented in the connection"

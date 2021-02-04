@@ -5,6 +5,23 @@
   "description": "Shared definitions for the JetStream API",
   "type": "object",
   "definitions": {
+    "placement": {
+      "type": "object",
+      "description": "Placement requirements for a stream",
+      "properties": {
+        "cluster": {
+          "type": "string",
+          "description": "The desired cluster name to place the stream"
+        },
+        "tags": {
+          "description": "Tags required on servers hosting this stream",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "peer_info": {
       "type": "object",
       "required": ["name", "current", "active"],
@@ -556,6 +573,10 @@
           "type": "integer",
           "minimum": 0,
           "default": 0
+        },
+        "placement": {
+          "description": "Placement directives to consider when placing replicas of this stream, random placement when unset",
+          "$ref": "definitions.json#/definitions/placement"
         }
       }
     },

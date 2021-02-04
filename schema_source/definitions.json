@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://nats.io/schemas/definitions.json",
   "title": "io.nats.server.definitions",
-  "description": "Shared definitions for the NATS JetStream advisories",
+  "description": "Shared definitions for the NATS advisories",
   "type": "object",
   "additionalProperties": false,
   "definitions": {
@@ -55,6 +55,14 @@
         "rtt": {
           "type": "number",
           "description": "The last known latency between the NATS Server and the Client in nanoseconds"
+        },
+        "server": {
+          "type": "string",
+          "description": "The server that the client was connected to"
+        },
+        "cluster": {
+          "type": "string",
+          "description": "The cluster name the server is connected to"
         },
         "jwt": {
           "type": "string",
