@@ -120,7 +120,8 @@
       "properties": {
         "cluster": {
           "type": "string",
-          "description": "The desired cluster name to place the stream"
+          "description": "The desired cluster name to place the stream",
+          "minLength": 1
         },
         "tags": {
           "description": "Tags required on servers hosting this stream",
