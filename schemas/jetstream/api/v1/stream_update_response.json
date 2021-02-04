@@ -128,6 +128,23 @@
                   "type": "integer",
                   "minimum": 0,
                   "default": 0
+                },
+                "placement": {
+                  "description": "Placement directives to consider when placing replicas of this stream, random placement when unset",
+                  "type": "object",
+                  "properties": {
+                    "cluster": {
+                      "type": "string",
+                      "description": "The desired cluster name to place the stream"
+                    },
+                    "tags": {
+                      "description": "Tags required on servers hosting this stream",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
                 }
               }
             }
