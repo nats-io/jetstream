@@ -13,7 +13,8 @@
     "batch": {
       "type": "integer",
       "description": "How many messages the server should deliver to the requestor",
-      "minimum": 0
+      "minimum": 0,
+      "maximum": 256
     },
     "no_wait": {
       "type": "boolean",
