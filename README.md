@@ -839,9 +839,9 @@ This Consumer needs no ack, so any new message into the ORDERS system will show 
 
 **WARNING: Clustered JetStream is an Alpha level feature**
 
-Clustering allow JetStream to span multiple servers and provide a highly available data storage service in a share-nothing manner.
+Clustering allow JetStream to span multiple servers and clusters, providing a highly available data storage service in a share-nothing manner.
 
-Once a JetStream cluster is operating interactions with the CLI and with `nats` CLI is the same as before, today we do not yet have Administration tools surfaced in the CLI, as they get added this section will be updated.
+Once a JetStream cluster is operating interactions with the CLI and with `nats` CLI is the same as before.
 
 ### Design
 
@@ -883,6 +883,9 @@ cluster {
 }
 ```
 
+### Creating clustered streams
+
+When adding a stream using the `nats` CLI the 
 ### Stream data replication
 
 Streams are replicated across the cluster using RAFT, the maximum number of replicas we support is 5, we suggest only 1, 3 or 5 be used for replica counts.
@@ -1846,6 +1849,9 @@ The API uses JSON for inputs and outputs, all the responses are typed using a `t
 |`$JS.API.STREAM.MSG.GET.*`|`api.JSApiMsgGetT`|Retrieves a specific message from the stream|`api.JSApiMsgGetRequest`|`api.JSApiMsgGetResponse`|
 |`$JS.API.STREAM.SNAPSHOT.*`|`api.JSApiStreamSnapshotT`|Initiates a streaming backup of a streams data|`api.JSApiStreamSnapshotRequest`|`api.JSApiStreamSnapshotResponse`|
 |`$JS.API.STREAM.RESTORE.*`|`api.JSApiStreamRestoreT`|Initiates a streaming restore of a stream|`{}`|`api.JSApiStreamRestoreResponse`|
+|`$JS.API.STREAM.PEER.REMOVE.*`|`api.JSApiStreamRemovePeerT`|Removes a cluster peer from the stream and its consumers, a new one will be elected and data synchronised|`api.JSApiStreamPeerRemoveRequest`|`api.JSApiStreamPeerRemoveResponse`|
+|`$JS.API.STREAM.LEADER.STEPDOWN.*`|`JSApiStreamLeaderStepDownT`|Force the current stream RAFT leader to step down and new election will be started|`{}`|`api.JSApiStreamLeaderStepDownResponse`|
+
 
 #### Stream Templates
 
@@ -1866,6 +1872,7 @@ The API uses JSON for inputs and outputs, all the responses are typed using a `t
 |`$JS.API.CONSUMER.NAMES.*`|`api.JSApiConsumerNamesT`|Paged list of known Consumer names|`api.JSApiConsumerNamesRequest`|`api.JSApiConsumerNamesResponse`|
 |`$JS.API.CONSUMER.INFO.*.*`|`api.JSApiConsumerInfoT`|Information about an Consumer|empty payload, Stream and Consumer names in subject|`api.JSApiConsumerInfoResponse`|
 |`$JS.API.CONSUMER.DELETE.*.*`|`api.JSApiConsumerDeleteT`|Deletes an Consumer|empty payload, Stream and Consumer names in subject|`api.JSApiConsumerDeleteResponse`|
+|`$JS.API.CONSUMER.LEADER.STEPDOWN.*.*`|`JSApiConsumerLeaderStepDownT`|Force the current consumer RAFT leader to step down and new election will be started|`{}`|`api.JSApiConsumerLeaderStepDownResponse`|
 
 #### ACLs
 
@@ -1891,6 +1898,8 @@ $JS.API.STREAM.MSG.DELETE.<stream>
 $JS.API.STREAM.MSG.GET.<stream>
 $JS.API.STREAM.SNAPSHOT.<stream>
 $JS.API.STREAM.RESTORE.<stream>
+$JS.API.STREAM.LEADER.STEPDOWN.<stream>
+$JS.API.STREAM.PEER.REMOVE.<stream>
 $JS.API.CONSUMER.CREATE.<stream>
 $JS.API.CONSUMER.DURABLE.CREATE.<stream>.<consumer>
 $JS.API.CONSUMER.DELETE.<stream>.<consumer>
@@ -1898,6 +1907,7 @@ $JS.API.CONSUMER.INFO.<stream>.<consumer>
 $JS.API.CONSUMER.LIST.<stream>
 $JS.API.CONSUMER.MSG.NEXT.<stream>.<consumer>
 $JS.API.CONSUMER.NAMES.<stream>
+$JS.API.CONSUMER.LEADER.STEPDOWN.<stream>.<consumer>
 $JS.API.STREAM.TEMPLATE.CREATE.<stream template>
 $JS.API.STREAM.TEMPLATE.DELETE.<stream template>
 $JS.API.STREAM.TEMPLATE.INFO.<stream template>

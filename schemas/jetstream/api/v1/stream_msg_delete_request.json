@@ -11,6 +11,10 @@
     "seq": {
       "type": "integer",
       "description": "Stream sequence number of the message to delete"
+    },
+    "no_erase": {
+      "type": "boolean",
+      "description": "Default will securely remove a message and rewrite the data with random data, set this to true to only remove the message"
     }
   }
 }
