@@ -913,7 +913,7 @@ The `current` indicates that followers are up to date and have all the messages,
 
 The replica count cannot be edited once configured.
 
-### Administrating the cluster
+### Administering the cluster
 
 At present the administration tools are under active development, more will be added shortly.
 
