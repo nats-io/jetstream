@@ -917,9 +917,9 @@ The replica count cannot be edited once configured.
 
 At present the administration tools are under active development, more will be added shortly.
 
-#### Forcing leader election
+#### Forcing Stream and Consumer leader election
 
-Every RAFT group has a leader that's elected by the group when needed. Generally there is no reason to interfere with this process but you might want to trigger a leader change at a convenient time.  Leader elections will represent short interruptions to the stream so if you know you will work on a node later it might be worth moving leadership away from it ahead of time.
+Every RAFT group has a leader that's elected by the group when needed. Generally there is no reason to interfere with this process, but you might want to trigger a leader change at a convenient time.  Leader elections will represent short interruptions to the stream so if you know you will work on a node later it might be worth moving leadership away from it ahead of time.
 
 Moving leadership away from a node does not remove it from the cluster and does not prevent it from becoming a leader again, this is merely a triggered leader election.
 
@@ -936,6 +936,18 @@ Cluster Information:
                Leader: n4-c1
               Replica: n1-c1, current, seen 0.12s ago
               Replica: n3-c1, current, seen 0.12s ago
+```
+
+The same is true for consumers, `nats consumer cluster step-down ORDERS NEW`.
+
+#### Forcing Meta Group leader election
+
+Similar to Streams and Consumers above the Meta Group allows leader stand down. The Meta Group is cluster wide and spans all accounts, therefore to manage the meta group you have to use a `SYSTEM` user.
+
+```nohighlight
+$ nats server raft step-down --user system
+17:44:24 Current leader: n2-c2
+17:44:24 New leader: n1-c2
 ```
 
 #### Evicting a peer
