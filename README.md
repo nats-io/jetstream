@@ -1974,6 +1974,12 @@ General information
 $JS.API.INFO
 ```
 
+Cluster Administration in the System account
+
+```
+$JS.API.META.LEADER.STEPDOWN
+```
+
 Stream and Consumer Admin
 
 ```
