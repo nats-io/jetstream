@@ -199,6 +199,15 @@
                   "description": "The timestamp of the last message in the Stream",
                   "format": "date-time"
                 },
+                "deleted": {
+                  "description": "IDs of messages that were deleted using the Message Delete API",
+                  "type": "array",
+                  "minLength": 0,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
                 "lost": {
                   "type": "object",
                   "description": "Records messages that were damaged and unrecoverable",
