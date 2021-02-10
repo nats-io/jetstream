@@ -917,6 +917,67 @@ The replica count cannot be edited once configured.
 
 At present the administration tools are under active development, more will be added shortly.
 
+#### Viewing the cluster state
+
+We have a high level report of cluster state:
+
+```nohighlight
+$ nats server report jetstream --user system
++----------------------------------------------------------------------------------------------------+
+|                                         JetStream Summary                                          |
++--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
+| Server | Cluster | Streams | Consumers | Messages | Bytes   | Memory | File    | API Req | API Err |
++--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
+| n1-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
+| n3-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
+| n2-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
+| n1-c1  | c1      | 4       | 16        | 111,920  | 125 MiB | 0 B    | 375 MiB | 92      | 0       |
+| n3-c1* | c1      | 4       | 16        | 111,920  | 125 MiB | 0 B    | 375 MiB | 92      | 0       |
++--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
+|        |         | 8       | 32        | 223,840  | 250 MiB | 0 B    | 1.7 GiB | 457     | 0       |
++--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
+
++---------------------------------------------------+
+|            RAFT Meta Group Information            |
++-------+--------+---------+---------+--------+-----+
+| Name  | Leader | Current | Offline | Active | Lag |
++-------+--------+---------+---------+--------+-----+
+| n1-c1 |        | true    | false   | 0.18s  | 0   |
+| n1-c2 |        | true    | false   | 0.18s  | 0   |
+| n2-c1 |        | false   | false   | 8.58s  | 2   |
+| n2-c2 |        | true    | false   | 0.18s  | 0   |
+| n3-c1 | yes    | true    | false   | 0.00s  | 0   |
+| n3-c2 |        | true    | false   | 0.18s  | 0   |
++-------+--------+---------+---------+--------+-----+
+```
+
+This is a full cluster wide report, the report can be limited to a specific account using `--account`.
+
+Here we see the distribution of streams, messages, api calls etc by across 2 super clusters and an overview of the RAFT meta group.
+
+In the Meta Group report the server `n2-c1` is not current and has not been seen for 9 seconds, it's also behind by 2 raft operations.
+
+This report is built using raw data that can be obtained from the monitor port on the `/jsz` url, or over nats using:
+
+```nohightlight
+$ nats server req jetstream --help
+...
+      --name=NAME               Limit to servers matching a server name
+      --host=HOST               Limit to servers matching a server host name
+      --cluster=CLUSTER         Limit to servers matching a cluster name
+      --tags=TAGS ...           Limit to servers with these configured tags
+      --account=ACCOUNT         Show statistics scoped to a specific account
+      --accounts                Include details about accounts
+      --streams                 Include details about Streams
+      --consumer                Include details about Consumers
+      --config                  Include details about configuration
+      --leader                  Request a response from the Meta-group leader only
+      --all                     Include accounts, streams, consumers and configuration
+$ nats server req jetstream --leader
+```
+
+This will produce a wealth of raw information about the current state of your cluster - here requesting it from the leader only.
+
 #### Forcing Stream and Consumer leader election
 
 Every RAFT group has a leader that's elected by the group when needed. Generally there is no reason to interfere with this process, but you might want to trigger a leader change at a convenient time.  Leader elections will represent short interruptions to the stream so if you know you will work on a node later it might be worth moving leadership away from it ahead of time.
