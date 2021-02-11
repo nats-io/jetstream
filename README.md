@@ -34,6 +34,16 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
 - [Clustering](#clustering)
   * [Design](#design)
   * [Configuration](#configuration-1)
+  * [Creating clustered streams](#creating-clustered-streams)
+  * [Administering the cluster](#administering-the-cluster)
+    + [Account Level](#account-level)
+      - [Viewing Stream Placement and Stats](#viewing-stream-placement-and-stats)
+      - [Forcing Stream and Consumer leader election](#forcing-stream-and-consumer-leader-election)
+    + [Evicting a peer](#evicting-a-peer)
+    + [System Level](#system-level)
+      - [Viewing the cluster state](#viewing-the-cluster-state)
+    + [Forcing Meta Group leader election](#forcing-meta-group-leader-election)
+    + [Evicting a peer](#evicting-a-peer-1)
   * [Docker](#docker)
 - [Monitoring](#monitoring)
   * [Server Metrics](#server-metrics)
@@ -86,6 +96,13 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
 - [`nats` CLI](#-nats--cli)
   * [Configuration Contexts](#configuration-contexts)
 - [Next Steps](#next-steps)
+- [Discussion Items](#discussion-items)
+  * [DLQ (Dead Letter Queue)](#dlq--dead-letter-queue-)
+  * [Purge or Truncate (not everything)](#purge-or-truncate--not-everything-)
+  * [NAK w/ Duration Before Redelivery](#nak-w--duration-before-redelivery)
+  * [MsgSet Immutable?](#msgset-immutable-)
+  * [DR/Mirror](#dr-mirror)
+  * [Account Template to Auto-create msgSets.](#account-template-to-auto-create-msgsets)
   
 ## Concepts
 
@@ -915,70 +932,31 @@ The replica count cannot be edited once configured.
 
 ### Administering the cluster
 
-At present the administration tools are under active development, more will be added shortly.
+#### Account Level
 
-#### Viewing the cluster state
+Within an account there are operations and reports that show where users data is placed and which allow them some basic interactions with the RAFT system.
 
-We have a high level report of cluster state:
+##### Viewing Stream Placement and Stats
 
-```nohighlight
-$ nats server report jetstream --user system
-+----------------------------------------------------------------------------------------------------+
-|                                         JetStream Summary                                          |
-+--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
-| Server | Cluster | Streams | Consumers | Messages | Bytes   | Memory | File    | API Req | API Err |
-+--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
-| n1-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
-| n3-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
-| n2-c2  | c2      | 0       | 0         | 0        | 0 B     | 0 B    | 336 MiB | 91      | 0       |
-| n1-c1  | c1      | 4       | 16        | 111,920  | 125 MiB | 0 B    | 375 MiB | 92      | 0       |
-| n3-c1* | c1      | 4       | 16        | 111,920  | 125 MiB | 0 B    | 375 MiB | 92      | 0       |
-+--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
-|        |         | 8       | 32        | 223,840  | 250 MiB | 0 B    | 1.7 GiB | 457     | 0       |
-+--------+---------+---------+-----------+----------+---------+--------+---------+---------+---------+
+Users can get overall statistics about their streams and also where these streams are placed:
 
-+---------------------------------------------------+
-|            RAFT Meta Group Information            |
-+-------+--------+---------+---------+--------+-----+
-| Name  | Leader | Current | Offline | Active | Lag |
-+-------+--------+---------+---------+--------+-----+
-| n1-c1 |        | true    | false   | 0.18s  | 0   |
-| n1-c2 |        | true    | false   | 0.18s  | 0   |
-| n2-c1 |        | false   | false   | 8.58s  | 2   |
-| n2-c2 |        | true    | false   | 0.18s  | 0   |
-| n3-c1 | yes    | true    | false   | 0.00s  | 0   |
-| n3-c2 |        | true    | false   | 0.18s  | 0   |
-+-------+--------+---------+---------+--------+-----+
+```
+$ nats stream report
+Obtaining Stream stats
+
++----------+-----------+----------+--------+---------+------+---------+----------------------+----------+
+| Stream   | Consumers | Messages | Bytes  | Storage | Lost | Deleted | Cluster              | Template |
++----------+-----------+----------+--------+---------+------+---------+----------------------+----------+
+| ORDERS   | 4         | 0        | 0 B    | File    | 0    | 0       | n1-c1*, n2-c1, n3-c1 |          |
+| ORDERS_3 | 4         | 0        | 0 B    | File    | 0    | 0       | n1-c1*, n2-c1, n3-c1 |          |
+| ORDERS_4 | 4         | 0        | 0 B    | File    | 0    | 0       | n1-c1*, n2-c1, n3-c1 |          |
+| ORDERS_5 | 4         | 0        | 0 B    | File    | 0    | 0       | n1-c1, n2-c1, n3-c1* |          |
+| ORDERS_2 | 4         | 1,385    | 13 MiB | File    | 0    | 1       | n1-c1, n2-c1, n3-c1* |          |
+| ORDERS_0 | 4         | 1,561    | 14 MiB | File    | 0    | 0       | n1-c1, n2-c1*, n3-c1 |          |
++----------+-----------+----------+--------+---------+------+---------+----------------------+----------+
 ```
 
-This is a full cluster wide report, the report can be limited to a specific account using `--account`.
-
-Here we see the distribution of streams, messages, api calls etc by across 2 super clusters and an overview of the RAFT meta group.
-
-In the Meta Group report the server `n2-c1` is not current and has not been seen for 9 seconds, it's also behind by 2 raft operations.
-
-This report is built using raw data that can be obtained from the monitor port on the `/jsz` url, or over nats using:
-
-```nohightlight
-$ nats server req jetstream --help
-...
-      --name=NAME               Limit to servers matching a server name
-      --host=HOST               Limit to servers matching a server host name
-      --cluster=CLUSTER         Limit to servers matching a cluster name
-      --tags=TAGS ...           Limit to servers with these configured tags
-      --account=ACCOUNT         Show statistics scoped to a specific account
-      --accounts                Include details about accounts
-      --streams                 Include details about Streams
-      --consumer                Include details about Consumers
-      --config                  Include details about configuration
-      --leader                  Request a response from the Meta-group leader only
-      --all                     Include accounts, streams, consumers and configuration
-$ nats server req jetstream --leader
-```
-
-This will produce a wealth of raw information about the current state of your cluster - here requesting it from the leader only.
-
-#### Forcing Stream and Consumer leader election
+##### Forcing Stream and Consumer leader election
 
 Every RAFT group has a leader that's elected by the group when needed. Generally there is no reason to interfere with this process, but you might want to trigger a leader change at a convenient time.  Leader elections will represent short interruptions to the stream so if you know you will work on a node later it might be worth moving leadership away from it ahead of time.
 
@@ -1000,16 +978,6 @@ Cluster Information:
 ```
 
 The same is true for consumers, `nats consumer cluster step-down ORDERS NEW`.
-
-#### Forcing Meta Group leader election
-
-Similar to Streams and Consumers above the Meta Group allows leader stand down. The Meta Group is cluster wide and spans all accounts, therefore to manage the meta group you have to use a `SYSTEM` user.
-
-```nohighlight
-$ nats server raft step-down --user system
-17:44:24 Current leader: n2-c2
-17:44:24 New leader: n1-c2
-```
 
 #### Evicting a peer
 
@@ -1040,6 +1008,86 @@ Cluster Information:
 ```
 
 We can see a new replica was picked, the stream is back to replication level of 3 and `n4-c1` is not active any more in this Stream or any of its Consumers.
+
+#### System Level
+
+Systems users can view state of the Meta Group - but not individual Stream or Consumers.
+
+##### Viewing the cluster state
+
+We have a high level report of cluster state:
+
+```nohighlight
+$ nats server report jetstream --user system
++--------------------------------------------------------------------------------------------------+
+|                                        JetStream Summary                                         |
++--------+---------+---------+-----------+----------+--------+--------+--------+---------+---------+
+| Server | Cluster | Streams | Consumers | Messages | Bytes  | Memory | File   | API Req | API Err |
++--------+---------+---------+-----------+----------+--------+--------+--------+---------+---------+
+| n3-c2  | c2      | 0       | 0         | 0        | 0 B    | 0 B    | 0 B    | 1       | 0       |
+| n3-c1  | c1      | 6       | 24        | 2,946    | 27 MiB | 0 B    | 27 MiB | 3       | 0       |
+| n2-c2  | c2      | 0       | 0         | 0        | 0 B    | 0 B    | 0 B    | 3       | 0       |
+| n1-c2  | c2      | 0       | 0         | 0        | 0 B    | 0 B    | 0 B    | 14      | 2       |
+| n2-c1  | c1      | 6       | 24        | 2,946    | 27 MiB | 0 B    | 27 MiB | 15      | 0       |
+| n1-c1* | c1      | 6       | 24        | 2,946    | 27 MiB | 0 B    | 27 MiB | 31      | 0       |
++--------+---------+---------+-----------+----------+--------+--------+--------+---------+---------+
+|        |         | 18      | 72        | 8,838    | 80 MiB | 0 B    | 80 MiB | 67      | 2       |
++--------+---------+---------+-----------+----------+--------+--------+--------+---------+---------+
+
++---------------------------------------------------+
+|            RAFT Meta Group Information            |
++-------+--------+---------+---------+--------+-----+
+| Name  | Leader | Current | Offline | Active | Lag |
++-------+--------+---------+---------+--------+-----+
+| n1-c1 | yes    | true    | false   | 0.00s  | 0   |
+| n1-c2 |        | true    | false   | 0.05s  | 0   |
+| n2-c1 |        | true    | false   | 0.05s  | 0   |
+| n2-c2 |        | true    | false   | 0.05s  | 0   |
+| n3-c1 |        | true    | false   | 0.05s  | 0   |
+| n3-c2 |        | true    | false   | 0.05s  | 0   |
++-------+--------+---------+---------+--------+-----+
+```
+
+This is a full cluster wide report, the report can be limited to a specific account using `--account`.
+
+Here we see the distribution of streams, messages, api calls etc by across 2 super clusters and an overview of the RAFT meta group.
+
+In the Meta Group report the server `n2-c1` is not current and has not been seen for 9 seconds, it's also behind by 2 raft operations.
+
+This report is built using raw data that can be obtained from the monitor port on the `/jsz` url, or over nats using:
+
+```nohightlight
+$ nats server req jetstream --help
+...
+      --name=NAME               Limit to servers matching a server name
+      --host=HOST               Limit to servers matching a server host name
+      --cluster=CLUSTER         Limit to servers matching a cluster name
+      --tags=TAGS ...           Limit to servers with these configured tags
+      --account=ACCOUNT         Show statistics scoped to a specific account
+      --accounts                Include details about accounts
+      --streams                 Include details about Streams
+      --consumer                Include details about Consumers
+      --config                  Include details about configuration
+      --leader                  Request a response from the Meta-group leader only
+      --all                     Include accounts, streams, consumers and configuration
+$ nats server req jetstream --leader
+```
+
+This will produce a wealth of raw information about the current state of your cluster - here requesting it from the leader only.
+
+#### Forcing Meta Group leader election
+
+Similar to Streams and Consumers above the Meta Group allows leader stand down. The Meta Group is cluster wide and spans all accounts, therefore to manage the meta group you have to use a `SYSTEM` user.
+
+```nohighlight
+$ nats server raft step-down --user system
+17:44:24 Current leader: n2-c2
+17:44:24 New leader: n1-c2
+```
+
+#### Evicting a peer
+
+TBD
 
 ### Docker
 
@@ -1320,12 +1368,12 @@ The backup includes:
  * All data including metadata like timestamps and headers
 
 ```nohighlight
-$ nats stream backup ORDERS /data/js-backup/ORDERS.tgz
+$ nats stream backup ORDERS /data/js-backup
 Starting backup of Stream "ORDERS" with 13 data blocks
 
 2.4 MiB/s [====================================================================] 100%
 
-Received 13 MiB bytes of compressed data in 3368 chunks for stream "ORDERS" in 1.223428188s, 813 MiB uncompressed 
+Received 253 MiB compressed data in 761 chunks for stream "ORDERS" in 1.307s, 253 MiB uncompressed 
 ```
 
 During the backup the Stream is in a state where it's configuration cannot change and no data will be expired from it based on Limits or Retention Policies.
@@ -1337,8 +1385,8 @@ Progress using the terminal bar can be disabled using `--no-progress`, it will t
 The backup made above can be restored into another server - but into the same Stream name.  
 
 ```nohighlight
-$ nats str restore ORDERS /data/js-backup/ORDERS.tgz
-Starting restore of Stream "ORDERS" from file "/data/js-backup/ORDERS.tgz"
+$ nats str restore ORDERS /data/js-backup
+Starting restore of Stream "ORDERS" from file "/data/js-backup"
 
 13 MiB/s [====================================================================] 100%
 
@@ -1351,8 +1399,6 @@ Configuration:
              Subjects: ORDERS.>
 ...
 ```
-
-The `/data/js-backup/ORDERS.tgz` file can also be extracted into the data dir of a stopped NATS Server.
 
 Progress using the terminal bar can be disabled using `--no-progress`, it will then issue log lines instead.
 
