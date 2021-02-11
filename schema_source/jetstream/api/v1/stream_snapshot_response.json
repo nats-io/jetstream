@@ -9,18 +9,14 @@
       "$ref": "definitions.json#/definitions/error_response"
     },
     {
-      "required": ["num_blks", "blk_size"],
+      "required": ["config", "state"],
       "type": "object",
       "properties": {
-        "num_blks": {
-          "type": "integer",
-          "description": "The approximate number of blocks in the snapshot",
-          "minimum": 1
+        "config": {
+          "$ref": "definitions.json#/definitions/stream_configuration"
         },
-        "blk_size": {
-          "description": "The size of each block being sent",
-          "type": "integer",
-          "minimum": 1
+        "state": {
+          "$ref": "definitions.json#/definitions/stream_state"
         }
       }
     }
