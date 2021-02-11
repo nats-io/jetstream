@@ -143,8 +143,7 @@
               "minimum": 1
             },
             "max_deliver": {
-              "type": "integer",
-              "minimum": -1
+              "type": "integer"
             },
             "filter_subject": {
               "type": "string"
@@ -166,8 +165,7 @@
             },
             "max_ack_pending": {
               "type": "integer",
-              "description": "The maximum number of messages without acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended",
-              "minimum": 0
+              "description": "The maximum number of messages without acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended"
             }
           }
         },
