@@ -194,20 +194,14 @@
         "lost": {
           "type": "object",
           "description": "Records messages that were damaged and unrecoverable",
-          "required": [
-            "msgs",
-            "bytes"
-          ],
           "properties": {
             "msgs": {
               "type": "integer",
-              "description": "The number of messages that were lost",
-              "minimum": 0
+              "description": "The number of messages that were lost"
             },
             "bytes": {
               "description": "The number of bytes that were lost",
-              "type": "integer",
-              "minimum": 0
+              "type": "integer"
             }
           }
         },
