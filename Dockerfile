@@ -1,5 +1,7 @@
 FROM golang:1.15-alpine AS SERVER
 
+ARG VERSION="nightly"
+
 RUN apk add --update git
 RUN mkdir -p src/github.com/nats-io && \
     cd src/github.com/nats-io/ && \
@@ -7,7 +9,7 @@ RUN mkdir -p src/github.com/nats-io && \
     git clone https://github.com/nats-io/natscli.git
 
 RUN cd src/github.com/nats-io/nats-server && CGO_ENABLED=0 GO111MODULE=off go build -v -a -tags netgo -installsuffix netgo -ldflags "-s -w -X github.com/nats-io/nats-server/server.gitCommit=`git rev-parse --short HEAD`" -o /nats-server
-RUN cd src/github.com/nats-io/natscli/nats && go build -o /nats
+RUN cd src/github.com/nats-io/natscli/nats && go build -ldflags "-s -w -X main.version=${VERSION}}" -o /nats
 
 FROM stedolan/jq:latest AS JQ
 FROM synadia/nats-box:latest

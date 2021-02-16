@@ -1,5 +1,7 @@
 name: JSM Nightly
 on:
+  workflow_dispatch: {}
+
   schedule:
     - cron: "0 4 * * *"
 
@@ -8,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v1
@@ -18,7 +22,7 @@ jobs:
       - name: docker_build
         run: |
           NDATE=$(date +%Y%m%d)
-          docker build -f Dockerfile --tag synadia/jsm:nightly-${NDATE} --tag synadia/jsm:nightly .
+          docker build -f Dockerfile --build-arg "VERSION=nightly-${NDATE}" --tag "synadia/jsm:nightly-${NDATE}" --tag synadia/jsm:nightly .
 
       - name: images
         run: |
