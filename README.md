@@ -936,7 +936,7 @@ The replica count cannot be edited once configured.
 
 Within an account there are operations and reports that show where users data is placed and which allow them some basic interactions with the RAFT system.
 
-##### Viewing Stream Placement and Stats
+##### Viewing Placement and Stats
 
 Users can get overall statistics about their streams and also where these streams are placed:
 
@@ -954,6 +954,22 @@ Obtaining Stream stats
 | ORDERS_2 | 4         | 1,385    | 13 MiB | File    | 0    | 1       | n1-c1, n2-c1, n3-c1* |          |
 | ORDERS_0 | 4         | 1,561    | 14 MiB | File    | 0    | 0       | n1-c1, n2-c1*, n3-c1 |          |
 +----------+-----------+----------+--------+---------+------+---------+----------------------+----------+
+```
+
+Similarly, Consumers can be reported on:
+
+```
+$ nats c report ORDERS
+Consumer report for ORDERS with 4 consumers
+
++----------+------+------------+----------+-------------+-------------+--------------+-----------+----------------------+
+| Consumer | Mode | Ack Policy | Ack Wait | Ack Pending | Redelivered | Unprocessed  | Ack Floor | Cluster              |
++----------+------+------------+----------+-------------+-------------+--------------+-----------+----------------------+
+| C0       | Pull | Explicit   | 30.00s   | 0           | 0           | 56,004 / 53% | 9         | n2-c1*, n1-c1, n3-c1 |
+| C1       | Pull | Explicit   | 30.00s   | 0           | 0           | 55,779 / 53% | 0         | n1-c1*, n2-c1, n3-c1 |
+| C2       | Pull | Explicit   | 30.00s   | 0           | 0           | 55,692 / 53% | 0         | n1-c1*, n2-c1, n3-c1 |
+| C3       | Pull | Explicit   | 30.00s   | 0           | 0           | 56,249 / 53% | 0         | n2-c1*, n1-c1, n3-c1 |
++----------+------+------------+----------+-------------+-------------+--------------+-----------+----------------------+
 ```
 
 ##### Forcing Stream and Consumer leader election
