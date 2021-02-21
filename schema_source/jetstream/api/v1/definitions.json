@@ -5,6 +5,30 @@
   "description": "Shared definitions for the JetStream API",
   "type": "object",
   "definitions": {
+    "stream_source_info": {
+      "required": ["name","lag","active"],
+      "type": "object",
+      "description": "Information about an upstream stream source in a mirror",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the Stream being replicated"
+        },
+        "lag": {
+          "type": "number",
+          "description": "How many messages behind the mirror operation is",
+          "minimum": 0
+        },
+        "active": {
+          "type": "number",
+          "description": "When last the mirror had activity, in nanoseconds",
+          "minimum": 0
+        },
+        "error": {
+          "$ref": "#/definitions/api_error"
+        }
+      }
+    },
     "lost_stream_data": {
       "type": "object",
       "description": "Records messages that were damaged and unrecoverable",
@@ -454,6 +478,9 @@
         },
         "cluster": {
           "$ref": "#/definitions/cluster_info"
+        },
+        "mirror": {
+          "$ref": "#/definitions/stream_source_info"
         }
       }
     },
@@ -613,6 +640,26 @@
         "placement": {
           "description": "Placement directives to consider when placing replicas of this stream, random placement when unset",
           "$ref": "definitions.json#/definitions/placement"
+        },
+        "mirror": {
+          "type": "string",
+          "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty.",
+        },
+        "sources": {
+          "type": "array",
+          "description": "List of Stream names to replicate into this Stream",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "syncs": {
+          "type": "array",
+          "description": "List of Stream names to replicate this Stream into",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
