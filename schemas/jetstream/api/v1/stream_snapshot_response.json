@@ -167,6 +167,26 @@
                   }
                 }
               }
+            },
+            "mirror": {
+              "type": "string",
+              "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty."
+            },
+            "sources": {
+              "type": "array",
+              "description": "List of Stream names to replicate into this Stream",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "syncs": {
+              "type": "array",
+              "description": "List of Stream names to replicate this Stream into",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
             }
           }
         },
