@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nats.io/schemas/jetstream/api/v1/stream_leader_stepdown_request.json",
+  "description": "A request to the JetStream $JS.API.STREAM.LEADER.STEPDOWN API",
+  "title": "io.nats.jetstream.api.v1.stream_leader_stepdown_request",
+  "type": "object",
+  "properties": {
+    "placement": {
+      "type": "object",
+      "description": "Placement requirements for a stream",
+      "required": [
+        "cluster"
+      ],
+      "properties": {
+        "cluster": {
+          "type": "string",
+          "description": "The desired cluster name to place the stream",
+          "minLength": 1
+        },
+        "tags": {
+          "description": "Tags required on servers hosting this stream",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
