@@ -481,6 +481,13 @@
         },
         "mirror": {
           "$ref": "#/definitions/stream_source_info"
+        },
+        "sources": {
+          "type": "array",
+          "description": "Streams being sourced into this Stream",
+          "items": {
+            "$ref": "#/definitions/stream_source_info"
+          }
         }
       }
     },

@@ -349,6 +349,53 @@
               }
             }
           }
+        },
+        "sources": {
+          "type": "array",
+          "description": "Streams being sourced into this Stream",
+          "items": {
+            "required": [
+              "name",
+              "lag",
+              "active"
+            ],
+            "type": "object",
+            "description": "Information about an upstream stream source in a mirror",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the Stream being replicated"
+              },
+              "lag": {
+                "type": "number",
+                "description": "How many messages behind the mirror operation is",
+                "minimum": 0
+              },
+              "active": {
+                "type": "number",
+                "description": "When last the mirror had activity, in nanoseconds",
+                "minimum": 0
+              },
+              "error": {
+                "type": "object",
+                "required": [
+                  "code"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "integer",
+                    "description": "HTTP like error code in the 300 to 500 range",
+                    "minimum": 300,
+                    "maximum": 699
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "A human friendly description of the error"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
