@@ -50,7 +50,7 @@
                   "minLength": 0
                 },
                 "subjects": {
-                  "description": "A list of subjects to consume, supports wildcards.",
+                  "description": "A list of subjects to consume, supports wildcards. Must be empty when a mirror is configured.",
                   "type": "array",
                   "minLength": 1,
                   "items": {
