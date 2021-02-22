@@ -32,7 +32,6 @@
               "description": "The template configuration to create Streams with",
               "type": "object",
               "required": [
-                "subjects",
                 "retention",
                 "max_consumers",
                 "max_msgs",
@@ -47,12 +46,12 @@
                   "description": "A unique name for the Stream, empty for Stream Templates.",
                   "type": "string",
                   "pattern": "^[^.*>]*$",
-                  "minLength": 0
+                  "minLength": 1
                 },
                 "subjects": {
                   "description": "A list of subjects to consume, supports wildcards. Must be empty when a mirror is configured.",
                   "type": "array",
-                  "minLength": 1,
+                  "minLength": 0,
                   "items": {
                     "type": "string"
                   }
