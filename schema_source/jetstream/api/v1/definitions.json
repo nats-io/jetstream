@@ -5,6 +5,30 @@
   "description": "Shared definitions for the JetStream API",
   "type": "object",
   "definitions": {
+    "stream_source": {
+      "type": "object",
+      "description": "Defines a source where streams should be replicated from",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "description": "Stream name",
+          "$ref": "#/definitions/basic_name"
+        },
+        "opt_start_seq": {
+          "description": "Sequence to start replicating from",
+          "type": "integer",
+          "minimum": 0
+        },
+        "opt_start_time": {
+          "description": "Time stamp to start replicating from",
+          "type": "string"
+        },
+        "filter_subject": {
+          "description": "Replicate only a subset of messages based on filter",
+          "type": "string"
+        }
+      }
+    },
     "stream_source_info": {
       "required": ["name","lag","active"],
       "type": "object",
@@ -644,26 +668,24 @@
         },
         "placement": {
           "description": "Placement directives to consider when placing replicas of this stream, random placement when unset",
-          "$ref": "definitions.json#/definitions/placement"
+          "$ref": "#/definitions/placement"
         },
         "mirror": {
-          "type": "string",
-          "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty."
+          "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty.",
+          "$ref": "#/definitions/stream_source"
         },
         "sources": {
           "type": "array",
           "description": "List of Stream names to replicate into this Stream",
           "items": {
-            "type": "string",
-            "minLength": 1
+            "$ref": "#/definitions/stream_source"
           }
         },
         "syncs": {
           "type": "array",
           "description": "List of Stream names to replicate this Stream into",
           "items": {
-            "type": "string",
-            "minLength": 1
+            "$ref": "#/definitions/stream_source"
           }
         }
       }
