@@ -131,23 +131,95 @@
       }
     },
     "mirror": {
-      "type": "string",
-      "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty."
+      "description": "Maintains a 1:1 mirror of another stream with name matching this property.  When a mirror is configured subjects and sources must be empty.",
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "description": "Stream name",
+          "type": "string",
+          "pattern": "^[^.*>]+$",
+          "minLength": 1
+        },
+        "opt_start_seq": {
+          "description": "Sequence to start replicating from",
+          "type": "integer",
+          "minimum": 0
+        },
+        "opt_start_time": {
+          "description": "Time stamp to start replicating from",
+          "type": "string"
+        },
+        "filter_subject": {
+          "description": "Replicate only a subset of messages based on filter",
+          "type": "string"
+        }
+      }
     },
     "sources": {
       "type": "array",
       "description": "List of Stream names to replicate into this Stream",
       "items": {
-        "type": "string",
-        "minLength": 1
+        "type": "object",
+        "description": "Defines a source where streams should be replicated from",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "description": "Stream name",
+            "type": "string",
+            "pattern": "^[^.*>]+$",
+            "minLength": 1
+          },
+          "opt_start_seq": {
+            "description": "Sequence to start replicating from",
+            "type": "integer",
+            "minimum": 0
+          },
+          "opt_start_time": {
+            "description": "Time stamp to start replicating from",
+            "type": "string"
+          },
+          "filter_subject": {
+            "description": "Replicate only a subset of messages based on filter",
+            "type": "string"
+          }
+        }
       }
     },
     "syncs": {
       "type": "array",
       "description": "List of Stream names to replicate this Stream into",
       "items": {
-        "type": "string",
-        "minLength": 1
+        "type": "object",
+        "description": "Defines a source where streams should be replicated from",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "description": "Stream name",
+            "type": "string",
+            "pattern": "^[^.*>]+$",
+            "minLength": 1
+          },
+          "opt_start_seq": {
+            "description": "Sequence to start replicating from",
+            "type": "integer",
+            "minimum": 0
+          },
+          "opt_start_time": {
+            "description": "Time stamp to start replicating from",
+            "type": "string"
+          },
+          "filter_subject": {
+            "description": "Replicate only a subset of messages based on filter",
+            "type": "string"
+          }
+        }
       }
     }
   }
