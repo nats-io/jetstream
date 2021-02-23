@@ -680,13 +680,6 @@
           "items": {
             "$ref": "#/definitions/stream_source"
           }
-        },
-        "syncs": {
-          "type": "array",
-          "description": "List of Stream names to replicate this Stream into",
-          "items": {
-            "$ref": "#/definitions/stream_source"
-          }
         }
       }
     },
