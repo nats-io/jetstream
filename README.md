@@ -31,13 +31,17 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
     + [Querying](#querying-1)
     + [Consuming Pull-Based Consumers](#consuming-pull-based-consumers)
     + [Consuming Push-Based Consumers](#consuming-push-based-consumers)
+- [Data Replication](#data-replication)
+  * [Mirrors](#mirrors)
+  * [Sources](#sources)
+  * [Configuration](#configuration-1)
 - [Clustering](#clustering)
   * [Design](#design)
-  * [Configuration](#configuration-1)
+  * [Configuration](#configuration-2)
   * [Creating clustered streams](#creating-clustered-streams)
   * [Administering the cluster](#administering-the-cluster)
     + [Account Level](#account-level)
-      - [Viewing Stream Placement and Stats](#viewing-stream-placement-and-stats)
+      - [Viewing Placement and Stats](#viewing-placement-and-stats)
       - [Forcing Stream and Consumer leader election](#forcing-stream-and-consumer-leader-election)
     + [Evicting a peer](#evicting-a-peer)
     + [System Level](#system-level)
@@ -76,7 +80,7 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
   * [Consumer Message Rates](#consumer-message-rates)
   * [Stream Templates](#stream-templates)
   * [Ack Sampling](#ack-sampling)
-    + [Configuration](#configuration-2)
+    + [Configuration](#configuration-3)
     + [Consuming](#consuming)
   * [Storage Overhead](#storage-overhead)
 - [NATS API Reference](#nats-api-reference)
@@ -873,6 +877,8 @@ A *mirror* copies data from 1 other stream, as far as possible IDs and ordering 
 ### Sources
 
 A *source* is a stream where data is copied from, one stream can have multiple sources and will read data in from them all. The stream will also listen for messages on it's own subject. We can therefore not maintain absolute ordering, but data from 1 single source will be in the correct order but mixed in with other streams. You might also find the timestamps of streams can be older and newer mixed in together as a result.
+
+A source can have start time or start sequence and can filter by a subject.
 
 ### Configuration
 
