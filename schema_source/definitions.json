@@ -16,12 +16,10 @@
       "properties": {
         "start": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client connected"
         },
         "stop": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client disconnected"
         },
         "host": {

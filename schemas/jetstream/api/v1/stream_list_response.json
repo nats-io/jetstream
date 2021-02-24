@@ -304,8 +304,7 @@
                           },
                           "first_ts": {
                             "type": "string",
-                            "description": "The timestamp of the first message in the Stream",
-                            "format": "date-time"
+                            "description": "The timestamp of the first message in the Stream"
                           },
                           "last_seq": {
                             "type": "integer",
@@ -314,8 +313,7 @@
                           },
                           "last_ts": {
                             "type": "string",
-                            "description": "The timestamp of the last message in the Stream",
-                            "format": "date-time"
+                            "description": "The timestamp of the last message in the Stream"
                           },
                           "deleted": {
                             "description": "IDs of messages that were deleted using the Message Delete API",
@@ -351,8 +349,7 @@
                   },
                   "created": {
                     "description": "Timestamp when the stream was created",
-                    "type": "string",
-                    "format": "date-time"
+                    "type": "string"
                   },
                   "cluster": {
                     "type": "object",

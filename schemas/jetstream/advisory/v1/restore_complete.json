@@ -26,7 +26,6 @@
     },
     "timestamp": {
       "type": "string",
-      "format": "date-time",
       "description": "The time this event was created in RFC3339 format"
     },
     "stream": {
@@ -35,13 +34,11 @@
     },
     "start": {
       "type": "string",
-      "description": "The time the Restore process started",
-      "format": "date-time"
+      "description": "The time the Restore process started"
     },
     "end": {
       "type": "string",
-      "description": "The time the Restore was completed",
-      "format": "date-time"
+      "description": "The time the Restore was completed"
     },
     "bytes": {
       "type": "integer",
@@ -58,12 +55,10 @@
       "properties": {
         "start": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client connected"
         },
         "stop": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client disconnected"
         },
         "host": {

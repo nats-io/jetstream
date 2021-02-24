@@ -233,8 +233,11 @@
         },
         "time": {
           "type": "string",
-          "description": "The time the message was received",
-          "format": "date-time"
+          "description": "The time the message was received"
+        },
+        "hdrs": {
+          "type": "string",
+          "description": "Base64 encoded headers for the message"
         }
       }
     },
@@ -354,8 +357,7 @@
           "enum": ["by_start_time"]
         },
         "opt_start_time": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         }
       }
     },
@@ -392,8 +394,7 @@
           "$ref": "#/definitions/consumer_configuration"
         },
         "created": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "delivered": {
           "description": "The last message delivered from this Consumer",
@@ -497,8 +498,7 @@
         },
         "created": {
           "description": "Timestamp when the stream was created",
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "cluster": {
           "$ref": "#/definitions/cluster_info"
@@ -537,8 +537,7 @@
         },
         "first_ts": {
           "type": "string",
-          "description": "The timestamp of the first message in the Stream",
-          "format": "date-time"
+          "description": "The timestamp of the first message in the Stream"
         },
         "last_seq": {
           "type": "integer",
@@ -547,8 +546,7 @@
         },
         "last_ts": {
           "type": "string",
-          "description": "The timestamp of the last message in the Stream",
-          "format": "date-time"
+          "description": "The timestamp of the last message in the Stream"
         },
         "deleted": {
           "description": "IDs of messages that were deleted using the Message Delete API",
