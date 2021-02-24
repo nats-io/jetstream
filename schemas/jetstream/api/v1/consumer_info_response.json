@@ -110,8 +110,7 @@
                       ]
                     },
                     "opt_start_time": {
-                      "type": "string",
-                      "format": "date-time"
+                      "type": "string"
                     }
                   }
                 }
@@ -170,8 +169,7 @@
           }
         },
         "created": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "delivered": {
           "description": "The last message delivered from this Consumer",

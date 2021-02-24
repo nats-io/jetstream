@@ -7,8 +7,7 @@
   "properties": {
     "expires": {
       "type": "string",
-      "description": "A time when this request should be expired from the server wait list",
-      "format": "date-time"
+      "description": "A time when this request should be expired from the server wait list"
     },
     "batch": {
       "type": "integer",

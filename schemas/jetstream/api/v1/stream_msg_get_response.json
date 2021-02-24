@@ -67,8 +67,11 @@
             },
             "time": {
               "type": "string",
-              "description": "The time the message was received",
-              "format": "date-time"
+              "description": "The time the message was received"
+            },
+            "hdrs": {
+              "type": "string",
+              "description": "Base64 encoded headers for the message"
             }
           }
         }

@@ -25,7 +25,6 @@
     },
     "timestamp": {
       "type": "string",
-      "format": "date-time",
       "description": "The time this event was created in RFC3339 format"
     },
     "stream": {
@@ -34,13 +33,11 @@
     },
     "start": {
       "type": "string",
-      "description": "The time the snapshot was created",
-      "format": "date-time"
+      "description": "The time the snapshot was created"
     },
     "end": {
       "type": "string",
-      "description": "The time the snapshot was completed",
-      "format": "date-time"
+      "description": "The time the snapshot was completed"
     },
     "client": {
       "$ref": "../../../definitions.json#/definitions/client_info_v1"

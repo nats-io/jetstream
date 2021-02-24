@@ -23,7 +23,6 @@
     },
     "timestamp": {
       "type": "string",
-      "format": "date-time",
       "description": "The time this event was created in RFC3339 format"
     },
     "server": {
@@ -71,7 +70,6 @@
         },
         "time": {
           "type": "string",
-          "format": "date-time",
           "description": "The local time of the server"
         }
       }
@@ -86,12 +84,10 @@
       "properties": {
         "start": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client connected"
         },
         "stop": {
           "type": "string",
-          "format": "date-time",
           "description": "Timestamp when the client disconnected"
         },
         "host": {
