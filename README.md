@@ -100,13 +100,6 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
 - [`nats` CLI](#-nats--cli)
   * [Configuration Contexts](#configuration-contexts)
 - [Next Steps](#next-steps)
-- [Discussion Items](#discussion-items)
-  * [DLQ (Dead Letter Queue)](#dlq--dead-letter-queue-)
-  * [Purge or Truncate (not everything)](#purge-or-truncate--not-everything-)
-  * [NAK w/ Duration Before Redelivery](#nak-w--duration-before-redelivery)
-  * [MsgSet Immutable?](#msgset-immutable-)
-  * [DR/Mirror](#dr-mirror)
-  * [Account Template to Auto-create msgSets.](#account-template-to-auto-create-msgsets)
   
 ## Concepts
 
@@ -878,7 +871,9 @@ A *mirror* copies data from 1 other stream, as far as possible IDs and ordering 
 
 A *source* is a stream where data is copied from, one stream can have multiple sources and will read data in from them all. The stream will also listen for messages on it's own subject. We can therefore not maintain absolute ordering, but data from 1 single source will be in the correct order but mixed in with other streams. You might also find the timestamps of streams can be older and newer mixed in together as a result.
 
-A source can have start time or start sequence and can filter by a subject.
+A Stream with sources may also listen on subjects, but could have no listening subject.  When using the `nats` CLI to create sourced streams use `--subjects` to supply subjects to listen on.
+
+A source can have start time or start sequence and can filter by a subject. 
 
 ### Configuration
 
