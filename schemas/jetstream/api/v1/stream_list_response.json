@@ -100,7 +100,7 @@
                             "minLength": 0
                           },
                           "subjects": {
-                            "description": "A list of subjects to consume, supports wildcards. Must be empty when a mirror is configured.",
+                            "description": "A list of subjects to consume, supports wildcards. Must be empty when a mirror is configured. May be empty when sources are configured.",
                             "type": "array",
                             "minLength": 0,
                             "items": {
@@ -329,8 +329,12 @@
                             "description": "Records messages that were damaged and unrecoverable",
                             "properties": {
                               "msgs": {
-                                "type": "integer",
-                                "description": "The number of messages that were lost"
+                                "type": "array",
+                                "description": "The messages that were lost",
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                }
                               },
                               "bytes": {
                                 "description": "The number of bytes that were lost",
