@@ -895,7 +895,6 @@ We now add the ARCHIVE:
 
 ```nohighlight
 $ nats s add ARCHIVE --source ORDERS --source RETURNS
-? Subjects to consume ARCHIVE.>
 ? Storage backend file
 ? Retention Policy Limits
 ? Discard Policy Old
@@ -963,16 +962,26 @@ We can confirm all our setup using a `nats stream report`:
 
 ```nohighlight
 $ nats s report
-Obtaining Stream stats
++-------------------------------------------------------------------------------------------------------------------+
+|                                                   Stream Report                                                   |
++---------+---------+----------+-------------+-----------+----------+-------+------+---------+----------------------+
+| Stream  | Storage | Template | Replication | Consumers | Messages | Bytes | Lost | Deleted | Cluster              |
++---------+---------+----------+-------------+-----------+----------+-------+------+---------+----------------------+
+| ARCHIVE | File    |          | Sourced     | 1         | 0        | 0 B   | 0    | 0       | n1-c2*, n2-c2, n3-c2 |
+| ORDERS  | Memory  |          |             | 1         | 0        | 0 B   | 0    | 0       | n1-c2, n2-c2*, n3-c2 |
+| REPORT  | File    |          | Mirror      | 0         | 0        | 0 B   | 0    | 0       | n1-c2*               |
+| RETURNS | Memory  |          |             | 1         | 0        | 0 B   | 0    | 0       | n1-c2, n2-c2, n3-c2* |
++---------+---------+----------+-------------+-----------+----------+-------+------+---------+----------------------+
 
-+---------+---------+----------+-----------+----------+-------+------+---------+----------------------+
-| Stream  | Storage | Template | Consumers | Messages | Bytes | Lost | Deleted | Cluster              |
-+---------+---------+----------+-----------+----------+-------+------+---------+----------------------+
-| ARCHIVE | File    |          | 1         | 0        | 0 B   | 0    | 0       | n1-c2, n2-c2, n3-c2* |
-| ORDERS  | Memory  |          | 1         | 0        | 0 B   | 0    | 0       | n1-c2, n2-c2*, n3-c2 |
-| REPORT  | File    |          | 0         | 0        | 0 B   | 0    | 0       | n1-c2*               |
-| RETURNS | Memory  |          | 1         | 0        | 0 B   | 0    | 0       | n1-c2*, n2-c2, n3-c2 |
-+---------+---------+----------+-----------+----------+-------+------+---------+----------------------+
++---------------------------------------------------------+
+|                   Replication Report                    |
++---------+--------+---------------+--------+-----+-------+
+| Stream  | Kind   | Source Stream | Active | Lag | Error |
++---------+--------+---------------+--------+-----+-------+
+| ARCHIVE | Source | ORDERS        | never  | 0   |       |
+| ARCHIVE | Source | RETURNS       | never  | 0   |       |
+| REPORT  | Mirror | ARCHIVE       | never  | 0   |       |
++---------+--------+---------------+--------+-----+-------+
 ```
 
 We then create some data in both ORDERS and RETURNS:
@@ -985,7 +994,7 @@ $ nats req RETURNS.new "RETURN {{Count}}" --count 100
 We can now see from a Stream Report that the data has been replicated:
 
 ```nohighlight
-$ nats s report
+$ nats s report --dot replication.dot
 Obtaining Stream stats
 
 +---------+---------+----------+-----------+----------+---------+------+---------+----------------------+
@@ -996,7 +1005,21 @@ Obtaining Stream stats
 | ARCHIVE | File    |          | 1         | 200      | 27 KiB  | 0    | 0       | n1-c2, n2-c2, n3-c2* |
 | REPORT  | File    |          | 0         | 200      | 27 KiB  | 0    | 0       | n1-c2*               |
 +---------+---------+----------+-----------+----------+---------+------+---------+----------------------+
+
++---------------------------------------------------------+
+|                   Replication Report                    |
++---------+--------+---------------+--------+-----+-------+
+| Stream  | Kind   | Source Stream | Active | Lag | Error |
++---------+--------+---------------+--------+-----+-------+
+| ARCHIVE | Source | ORDERS        | 14.48s | 0   |       |
+| ARCHIVE | Source | RETURNS       | 9.83s  | 0   |       |
+| REPORT  | Mirror | ARCHIVE       | 9.82s  | 0   |       |
++---------+--------+---------------+--------+-----+-------+
 ```
+
+Here we also pass the `--dot replication.dot` argument that writes a GraphViz format map of the replication setup.
+
+![](images/replication-setup.png)
 
 ## Clustering
 
