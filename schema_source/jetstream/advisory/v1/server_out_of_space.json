@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nats.io/schemas/jetstream/advisory/v1/server_out_of_space.json",
+  "description": "An Advisory sent when a Server has run out of disk space",
+  "title": "io.nats.jetstream.advisory.v1.server_out_of_space",
+  "type": "object",
+  "required": [
+    "type",
+    "id",
+    "timestamp",
+    "server",
+    "server_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "io.nats.jetstream.advisory.v1.server_out_of_space"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique correlation ID for this event"
+    },
+    "timestamp": {
+      "type": "string",
+      "description": "The time this event was created in RFC3339 format"
+    },
+    "stream": {
+      "type": "string",
+      "description": "The Stream that triggered the out of space event"
+    },
+    "server": {
+      "type": "string",
+      "description": "The server name that ran out of space"
+    },
+    "server_id": {
+      "type": "string",
+      "description": "The server ID that ran out of space"
+    },
+    "cluster": {
+      "type": "string",
+      "description": "The cluster the server is in"
+    }
+  }
+}
