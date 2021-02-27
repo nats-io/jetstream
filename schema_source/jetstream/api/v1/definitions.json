@@ -623,7 +623,7 @@
           "default": -1
         },
         "max_age": {
-          "description": "Maximum age of any message in the stream, expressed in microseconds. 0 for unlimited.",
+          "description": "Maximum age of any message in the stream, expressed in nanoseconds. 0 for unlimited.",
           "type": "integer",
           "minimum": 0,
           "default": 0
@@ -663,7 +663,7 @@
           "default": "old"
         },
         "duplicate_window": {
-          "description": "The time window to track duplicate messages for, expressed in microseconds. 0 for default",
+          "description": "The time window to track duplicate messages for, expressed in nanoseconds. 0 for default",
           "type": "integer",
           "minimum": 0,
           "default": 0
