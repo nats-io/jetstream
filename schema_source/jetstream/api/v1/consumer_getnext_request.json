@@ -6,8 +6,8 @@
   "type": "object",
   "properties": {
     "expires": {
-      "type": "string",
-      "description": "A time when this request should be expired from the server wait list"
+      "type": "integer",
+      "description": "A duration from now when the pull should expire, stated in nanoseconds, 0 for no expiry"
     },
     "batch": {
       "type": "integer",
