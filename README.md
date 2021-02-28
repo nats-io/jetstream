@@ -2357,12 +2357,12 @@ This is often not desired, pull consumers support a mode where a JSON document i
 
 ```json
 {
-  "expires": "2020-11-10T12:41:00.075933464Z",
+  "expires": 15000000000,
   "batch": 10
 }
 ```
 
-This requests 10 messages and asks the server to keep this request until the specific `expires` time, this is useful when you poll the server frequently and do not want the pull requests to accumulate on the server. Set the expire time to now + your poll frequency.
+This requests 10 messages and asks the server to keep this request for 15 seconds based on `expires` duration, this is useful when you poll the server frequently and do not want the pull requests to accumulate on the server. Set the expire time to now + your poll frequency.
 
 ```json
 {
