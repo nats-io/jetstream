@@ -1270,7 +1270,41 @@ $ nats server raft step-down --user system
 
 #### Evicting a peer
 
-TBD
+**NOTE** Please read the nodes here carefully before using this command.
+
+When a server dies, and it's not coming back ever our automated management of RAFT membership will not forget this node, to fully remove a machine you need to tell us that it's never coming back. Only do this when you know you will not return a machine with the same name to the cluster ever.
+
+This is a very dangerous operation, data on the machine will become inaccessible and a server with that name can not join the cluster again.
+
+``nohighlight
+$ nats server report jetstream --user system
+....
++---------------------------------------------------+
+|            RAFT Meta Group Information            |
++-------+--------+---------+---------+--------+-----+
+| Name  | Leader | Current | Offline | Active | Lag |
++-------+--------+---------+---------+--------+-----+
+| n1-c1 | yes    | true    | false   | 0.00s  | 0   |
+| n2-c1 |        | true    | false   | 0.21s  | 0   |
+| n3-c1 |        | true    | false   | 0.21s  | 0   |
+| n4-c1 |        | false   | true    | 2m54s  | 0   |
+| n5-c1 |        | true    | false   | 0.21s  | 0   |
++-------+--------+---------+---------+--------+-----+
+``
+
+Above we can see node `n4-c1` is marked as Offline, this happens when you cleanly shut a node down or after about 3 minutes of a node being gone.
+
+Once marked as Offline you can remove it from the cluster:
+
+```nohighlight
+$ nats server raft peer-remove n4-c1 --user system
+Removing n4-c1 can not be reversed, data on this node will be
+inaccessible and another one called n4-c1 can not join again.
+
+? Really remove peer n4-c1 Yes
+```
+
+After this the JetStream report should not show this node any longer.
 
 ### Docker
 
