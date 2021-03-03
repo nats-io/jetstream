@@ -233,6 +233,24 @@
                               "filter_subject": {
                                 "description": "Replicate only a subset of messages based on filter",
                                 "type": "string"
+                              },
+                              "external": {
+                                "required": [
+                                  "api",
+                                  "deliver"
+                                ],
+                                "type": "object",
+                                "description": "Configuration referencing a stream source in another account",
+                                "properties": {
+                                  "api": {
+                                    "type": "string",
+                                    "description": "The subject prefix that imports the other account $JS.API.CONSUMER.> subjects"
+                                  },
+                                  "deliver": {
+                                    "type": "string",
+                                    "description": "The delivery subject to use for the push consumer"
+                                  }
+                                }
                               }
                             }
                           },
@@ -264,6 +282,24 @@
                                 "filter_subject": {
                                   "description": "Replicate only a subset of messages based on filter",
                                   "type": "string"
+                                },
+                                "external": {
+                                  "required": [
+                                    "api",
+                                    "deliver"
+                                  ],
+                                  "type": "object",
+                                  "description": "Configuration referencing a stream source in another account",
+                                  "properties": {
+                                    "api": {
+                                      "type": "string",
+                                      "description": "The subject prefix that imports the other account $JS.API.CONSUMER.> subjects"
+                                    },
+                                    "deliver": {
+                                      "type": "string",
+                                      "description": "The delivery subject to use for the push consumer"
+                                    }
+                                  }
                                 }
                               }
                             }
