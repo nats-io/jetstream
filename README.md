@@ -2416,6 +2416,15 @@ Here we see a second format of the Pull request that will not store the request 
 13:45:30 Description: No Messages
 ```
 
+If you can make a batch request of more than the allowed number of `MaxAckPending` messages from a consumer you may also get an error:
+
+```nohighlight
+$ nats req '$JS.API.CONSUMER.MSG.NEXT.ORDERS.test' '10'
+Published 2 bytes to $JS.API.CONSUMER.MSG.NEXT.ORDERS.test
+Status: 409
+Description: Exceeded MaxAckPending
+```
+
 ### Fetching From a Stream By Sequence
 
 If you know the Stream sequence of a message you can fetch it directly, this does not support acks.  Do a Request() to `$JS.API.STREAM.MSG.GET.ORDERS` sending it the message sequence as payload.  Here the prefix is defined in `api.JetStreamMsgBySeqT` which also requires populating using `fmt.Sprintf()`.
