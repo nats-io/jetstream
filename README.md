@@ -863,6 +863,8 @@ We create a _ARCHIVE_ stream that has 2 _sources_ set, the _ARCHIVE_ will pull d
 
 Finally, we create a _REPORT_ stream mirrored from _ARCHIVE_ that is not clustered and retains data for a month.  The _REPORT_ Stream does not listen for any incoming messages, it can only consume data from _ARCHIVE_.
 
+Additionally, with extra configuration and mutual agreement between parties, data can be replicated between 2 accounts.  Ideal for importing data from Leafnodes.
+
 ### Mirrors
 
 A *mirror* copies data from 1 other stream, as far as possible IDs and ordering will match exactly the source. A *mirror* does not listen on a subject for any data to be added. The Start Sequence and Start Time can be set, but no subject filter. A stream can only have 1 *mirror* and if it is a mirror it cannot also have any *source*.
@@ -898,18 +900,16 @@ $ nats s add ARCHIVE --source ORDERS --source RETURNS
 ? Storage backend file
 ? Retention Policy Limits
 ? Discard Policy Old
-? Message count limit -1
+? Stream Messages Limit -1
 ? Message size limit -1
 ? Maximum message age limit -1
 ? Maximum individual message size -1
 ? Duplicate tracking time window 2m
-? Number of replicas to store 3
-? ORDERS Source Start Sequence 0
-? ORDERS Source UTC Time Stamp (YYYY:MM:DD HH:MM:SS)
-? ORDERS Source Filter source by subject
-? RETURNS Source Start Sequence 0
-? RETURNS Source UTC Time Stamp (YYYY:MM:DD HH:MM:SS)
-? RETURNS Source Filter source by subject
+? Replicas 3
+? Adjust source "ORDERS" start No
+? Import "ORDERS" from a different account No
+? Adjust source "RETURNS" start No
+? Import "RETURNS" from a different account No
 ```
 
 And we add the REPORT:
@@ -919,15 +919,14 @@ $ nats s add REPORT --mirror ARCHIVE
 ? Storage backend file
 ? Retention Policy Limits
 ? Discard Policy Old
-? Message count limit -1
+? Stream Messages Limit -1
 ? Message size limit -1
 ? Maximum message age limit 1M
 ? Maximum individual message size -1
 ? Duplicate tracking time window 2m
-? Number of replicas to store 1
-? Mirror Start Sequence 0
-? Mirror Start Time (YYYY:MM:DD HH:MM:SS)
-? Mirror subject filter
+? Replicas 1
+? Adjust mirror start No
+? Import mirror from a different account No
 ```
 
 When configured we'll see some additional information in a `nats stream info` output:
@@ -1020,6 +1019,107 @@ Obtaining Stream stats
 Here we also pass the `--dot replication.dot` argument that writes a GraphViz format map of the replication setup.
 
 ![](images/replication-setup.png)
+
+### Cross Account Replication
+
+Sources and Mirrors can be done across accounts, this requires more up-front configuration on the part of both accounts.
+
+In the example below we have account `STORAGE` with a `WEATHER` stream that wants to mirror this stream into account `WEATHER`.
+
+```nohighlight
+acounts {
+  STORAGE: {
+    jetstream: enabled
+    users = [
+      {user: storage, password: password}
+    ]
+
+    exports = [
+      { service: "$JS.API.CONSUMER.CREATE.WEATHER" }
+      { service: "$JS.API.CONSUMER.DURABLE.CREATE.WEATHER.*" }
+      { stream: "js.mirrors.weather.>" }
+    ]
+  }
+}
+```
+
+Her we export the ability to specifically create consumers on the `WEATHER` stream, and we establish a convention that
+data used by the replication system should be under the `js.mirrors.weather.>` subject space.
+
+On the side of the `WEATHER` account we import these subjects:
+
+```nohighlight
+account {
+  WEATHER: {
+    jetstream: enabled
+    users = [
+      {user: weather, password: password}
+    ]
+    
+    imports = [
+      {service: {account one, subject: "$JS.API.CONSUMER.CREATE.WEATHER"}, to: "js.imports.storage.CONSUMER.CREATE.WEATHER"}
+      {service: {account one, subject: "$JS.API.CONSUMER.DURABLE.CREATE.WEATHER.*"}, to: "js.imports.storage.CONSUMER.DURABLE.CREATE.WEATHER.*"}
+      {stream: {account one, subject: "js.mirrors.weather.>"}, to: "js.mirrors.weather.>"}
+    ]
+  }
+}
+```
+
+Here we import these specific subjects into our account, the API can be anywhere, but the delivery subject has to be the same across both sides.
+
+Let's add the `WEATHER` stream to the `STORAGE` account:
+
+```nohighlight
+$ nats s add WEATHER --user storage --password password
+? Subjects to consume js.in.weather
+? Storage backend file
+? Retention Policy Limits
+? Discard Policy Old
+? Stream Messages Limit -1
+? Message size limit -1
+? Maximum message age limit -1
+? Maximum individual message size -1
+? Duplicate tracking time window 2m
+? Replicas 3
+```
+
+We can now mirror this stream into the other account, we'll set up a MEMORY stream with 1 hour retention for this.
+
+```nohighlight
+$ nats s add WEATHER --user weather --mirror WEATHER
+? Storage backend memory
+? Retention Policy Limits
+? Discard Policy Old
+? Stream Messages Limit -1
+? Message size limit -1
+? Maximum message age limit 1h
+? Maximum individual message size -1
+? Duplicate tracking time window 2m
+? Replicas 1
+? Adjust mirror start No
+? Import mirror from a different account Yes
+? Foreign account API prefix js.imports.storage
+? Foreign account delivery prefix js.mirrors.weather
+Stream WEATHER was created
+
+Information for Stream WEATHER created 2021-03-04T16:12:00+01:00
+
+Configuration:
+
+     Acknowledgements: true
+            Retention: Memory - Limits
+             Replicas: 1
+       Discard Policy: Old
+     Duplicate Window: 2m0s
+     Maximum Messages: unlimited
+        Maximum Bytes: unlimited
+          Maximum Age: 1h0m0s
+ Maximum Message Size: unlimited
+    Maximum Consumers: unlimited
+               Mirror: WEATHER, API Prefix: js.imports.one, Delivery Prefix: js.mirrors.weather
+```
+
+At this point the data entered into the STORAGE account will be mirrored to the WEATHER account and kept in memory for a hour.
 
 ## Clustering
 
