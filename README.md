@@ -186,6 +186,7 @@ When defining Consumers the items below make up the entire configuration of the 
 |OptStartTime|When first consuming messages from the Stream start with messages on or after this time|
 |RateLimit|The rate of message delivery in bits per second|
 |MaxAckPending|The maximum number of messages without acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended|
+|Heartbeat|If the Consumer is idle for more than this many nano seconds a empty message with Status header 100 will be sent indicating the consumer is still alive|
 
 ### Configuration
 

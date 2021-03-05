@@ -165,6 +165,11 @@
             "max_ack_pending": {
               "type": "integer",
               "description": "The maximum number of messages without acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended"
+            },
+            "idle_heartbeat": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "If the Consumer is idle for more than this many nano seconds a empty message with Status header 100 will be sent indicating the consumer is still alive"
             }
           }
         },
