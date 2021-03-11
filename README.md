@@ -187,6 +187,7 @@ When defining Consumers the items below make up the entire configuration of the 
 |RateLimit|The rate of message delivery in bits per second|
 |MaxAckPending|The maximum number of messages without acknowledgement that can be outstanding, once this limit is reached message delivery will be suspended|
 |Heartbeat|If the Consumer is idle for more than this many nano seconds a empty message with Status header 100 will be sent indicating the consumer is still alive|
+|FlowControl|For Push consumers automatic flow control is supported when this is enabled, the server will send messages with Status header 100 and a reply set, responding to these will hint to the server that capabilities of the client|
 
 ### Configuration
 

@@ -226,6 +226,11 @@
                   "type": "integer",
                   "minimum": 0,
                   "description": "If the Consumer is idle for more than this many nano seconds a empty message with Status header 100 will be sent indicating the consumer is still alive"
+                },
+                "flow_control": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "For push Consumers the server will periodically send messages with headers with 100 statuses requesting replies, this will allow the consumer to speed up and slow down accordingly"
                 }
               }
             },
