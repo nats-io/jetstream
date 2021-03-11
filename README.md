@@ -2441,6 +2441,7 @@ Stream and Consumer Use
 ```
 $JS.API.CONSUMER.MSG.NEXT.<stream>.<consumer>
 $JS.ACK.<stream>.<consumer>.x.x.x
+$JS.FC.*.*.*
 $JS.SNAPSHOT.ACK.<stream>.<msg id>
 $JS.SNAPSHOT.RESTORE.<stream>.<msg id>
 ```
