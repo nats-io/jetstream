@@ -8,7 +8,9 @@
     "stream_source": {
       "type": "object",
       "description": "Defines a source where streams should be replicated from",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
         "name": {
           "description": "Stream name",
@@ -33,7 +35,10 @@
       }
     },
     "external_stream_source": {
-      "required": ["api","deliver"],
+      "required": [
+        "api",
+        "deliver"
+      ],
       "type": "object",
       "description": "Configuration referencing a stream source in another account",
       "properties": {
@@ -48,7 +53,11 @@
       }
     },
     "stream_source_info": {
-      "required": ["name","lag","active"],
+      "required": [
+        "name",
+        "lag",
+        "active"
+      ],
       "type": "object",
       "description": "Information about an upstream stream source in a mirror",
       "properties": {
@@ -92,7 +101,9 @@
     "placement": {
       "type": "object",
       "description": "Placement requirements for a stream",
-      "required": ["cluster"],
+      "required": [
+        "cluster"
+      ],
       "properties": {
         "cluster": {
           "type": "string",
@@ -110,7 +121,11 @@
     },
     "peer_info": {
       "type": "object",
-      "required": ["name", "current", "active"],
+      "required": [
+        "name",
+        "current",
+        "active"
+      ],
       "properties": {
         "name": {
           "description": "The server name of the peer",
@@ -160,7 +175,10 @@
     },
     "api_stats": {
       "type": "object",
-      "required": ["total", "errors"],
+      "required": [
+        "total",
+        "errors"
+      ],
       "properties": {
         "total": {
           "description": "Total number of API requests received for this account",
@@ -176,7 +194,14 @@
     },
     "account_stats": {
       "type": "object",
-      "required": ["memory", "storage", "streams", "limits", "api", "consumers"],
+      "required": [
+        "memory",
+        "storage",
+        "streams",
+        "limits",
+        "api",
+        "consumers"
+      ],
       "properties": {
         "memory": {
           "description": "Memory Storage being used for Stream Message storage",
@@ -209,7 +234,12 @@
     "account_limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["max_consumers", "max_memory", "max_storage", "max_streams"],
+      "required": [
+        "max_consumers",
+        "max_memory",
+        "max_storage",
+        "max_streams"
+      ],
       "properties": {
         "max_memory": {
           "type": "integer",
@@ -236,7 +266,12 @@
     "stored_message": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["subject", "seq", "data", "time"],
+      "required": [
+        "subject",
+        "seq",
+        "data",
+        "time"
+      ],
       "properties": {
         "subject": {
           "type": "string",
@@ -266,7 +301,9 @@
     "iterable_request": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["offset"],
+      "required": [
+        "offset"
+      ],
       "properties": {
         "offset": {
           "type": "integer",
@@ -276,7 +313,11 @@
     },
     "iterable_response": {
       "type": "object",
-      "required": ["total", "offset", "limit"],
+      "required": [
+        "total",
+        "offset",
+        "limit"
+      ],
       "properties": {
         "total": {
           "type": "integer",
@@ -294,7 +335,9 @@
     },
     "error_response": {
       "type": "object",
-      "required": ["error"],
+      "required": [
+        "error"
+      ],
       "properties": {
         "error": {
           "$ref": "#/definitions/api_error"
@@ -303,7 +346,9 @@
     },
     "api_error": {
       "type": "object",
-      "required": ["code"],
+      "required": [
+        "code"
+      ],
       "properties": {
         "code": {
           "type": "integer",
@@ -324,46 +369,73 @@
     },
     "deliver_policy": {
       "oneOf": [
-        {"$ref": "#/definitions/all_deliver_policy"},
-        {"$ref": "#/definitions/last_deliver_policy"},
-        {"$ref": "#/definitions/new_deliver_policy"},
-        {"$ref": "#/definitions/start_sequence_deliver_policy"},
-        {"$ref": "#/definitions/start_time_deliver_policy"}
+        {
+          "$ref": "#/definitions/all_deliver_policy"
+        },
+        {
+          "$ref": "#/definitions/last_deliver_policy"
+        },
+        {
+          "$ref": "#/definitions/new_deliver_policy"
+        },
+        {
+          "$ref": "#/definitions/start_sequence_deliver_policy"
+        },
+        {
+          "$ref": "#/definitions/start_time_deliver_policy"
+        }
       ]
     },
     "all_deliver_policy": {
-      "required": ["deliver_policy"],
+      "required": [
+        "deliver_policy"
+      ],
       "properties": {
         "deliver_policy": {
           "type": "string",
-          "enum": ["all"]
+          "enum": [
+            "all"
+          ]
         }
       }
     },
     "last_deliver_policy": {
-      "required": ["deliver_policy"],
+      "required": [
+        "deliver_policy"
+      ],
       "properties": {
         "deliver_policy": {
           "type": "string",
-          "enum": ["last"]
+          "enum": [
+            "last"
+          ]
         }
       }
     },
     "new_deliver_policy": {
-      "required": ["deliver_policy"],
+      "required": [
+        "deliver_policy"
+      ],
       "properties": {
         "deliver_policy": {
           "type": "string",
-          "enum": ["new"]
+          "enum": [
+            "new"
+          ]
         }
       }
     },
     "start_sequence_deliver_policy": {
-      "required": ["deliver_policy", "opt_start_seq"],
+      "required": [
+        "deliver_policy",
+        "opt_start_seq"
+      ],
       "properties": {
         "deliver_policy": {
           "type": "string",
-          "enum": ["by_start_sequence"]
+          "enum": [
+            "by_start_sequence"
+          ]
         },
         "opt_start_seq": {
           "type": "integer",
@@ -372,11 +444,16 @@
       }
     },
     "start_time_deliver_policy": {
-      "required": ["deliver_policy", "opt_start_time"],
+      "required": [
+        "deliver_policy",
+        "opt_start_time"
+      ],
       "properties": {
         "deliver_policy": {
           "type": "string",
-          "enum": ["by_start_time"]
+          "enum": [
+            "by_start_time"
+          ]
         },
         "opt_start_time": {
           "type": "string"
@@ -386,7 +463,10 @@
     "sequence_pair": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["consumer_seq", "stream_seq"],
+      "required": [
+        "consumer_seq",
+        "stream_seq"
+      ],
       "properties": {
         "consumer_seq": {
           "type": "integer",
@@ -401,7 +481,18 @@
       }
     },
     "consumer_info": {
-      "required": ["stream_name", "name", "config", "created", "delivered", "ack_floor", "num_ack_pending", "num_redelivered", "num_waiting", "num_pending"],
+      "required": [
+        "stream_name",
+        "name",
+        "config",
+        "created",
+        "delivered",
+        "ack_floor",
+        "num_ack_pending",
+        "num_redelivered",
+        "num_waiting",
+        "num_pending"
+      ],
       "type": "object",
       "properties": {
         "stream_name": {
@@ -452,12 +543,16 @@
       }
     },
     "consumer_configuration": {
-      "required":[
+      "required": [
         "deliver_policy",
         "ack_policy",
         "replay_policy"
       ],
-      "allOf": [{"$ref": "#/definitions/deliver_policy"}],
+      "allOf": [
+        {
+          "$ref": "#/definitions/deliver_policy"
+        }
+      ],
       "properties": {
         "durable_name": {
           "description": "A unique name for a durable consumer",
@@ -469,7 +564,11 @@
         },
         "ack_policy": {
           "type": "string",
-          "enum": ["none", "all", "explicit"]
+          "enum": [
+            "none",
+            "all",
+            "explicit"
+          ]
         },
         "ack_wait": {
           "description": "How long (in nanoseconds) to allow messages to remain un-acknowledged before attempting redelivery",
@@ -484,7 +583,10 @@
         },
         "replay_policy": {
           "type": "string",
-          "enum": ["instant", "original"]
+          "enum": [
+            "instant",
+            "original"
+          ]
         },
         "sample_freq": {
           "type": "string"
@@ -502,25 +604,38 @@
           "type": "integer",
           "minimum": 0,
           "description": "If the Consumer is idle for more than this many nano seconds a empty message with Status header 100 will be sent indicating the consumer is still alive"
+        },
+        "flow_control": {
+          "type": "boolean",
+          "default": false,
+          "description": "For push Consumers the server will periodically send messages with headers with 100 statuses requesting replies, this will allow the consumer to speed up and slow down accordingly"
         }
       }
     },
     "stream_info": {
       "type": "object",
-      "required": ["config", "state", "created"],
+      "required": [
+        "config",
+        "state",
+        "created"
+      ],
       "properties": {
         "config": {
           "type": "object",
           "description": "The active configuration for the Stream",
           "allOf": [
-            {"$ref": "#/definitions/stream_configuration"}
+            {
+              "$ref": "#/definitions/stream_configuration"
+            }
           ]
         },
         "state": {
           "type": "object",
           "description": "Detail about the current State of the Stream",
           "allOf": [
-            {"$ref": "#/definitions/stream_state"}
+            {
+              "$ref": "#/definitions/stream_state"
+            }
           ]
         },
         "created": {
@@ -545,7 +660,13 @@
     "stream_state": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["messages", "bytes", "first_seq", "last_seq", "consumer_count"],
+      "required": [
+        "messages",
+        "bytes",
+        "first_seq",
+        "last_seq",
+        "consumer_count"
+      ],
       "properties": {
         "messages": {
           "type": "integer",
@@ -596,7 +717,7 @@
     },
     "stream_configuration": {
       "type": "object",
-      "required":[
+      "required": [
         "retention",
         "max_consumers",
         "max_msgs",
@@ -624,7 +745,11 @@
         "retention": {
           "description": "How messages are retained in the Stream, once this is exceeded old messages are removed.",
           "type": "string",
-          "enum": ["limits", "interest", "workqueue"],
+          "enum": [
+            "limits",
+            "interest",
+            "workqueue"
+          ],
           "default": "limits"
         },
         "max_consumers": {
@@ -660,7 +785,10 @@
         "storage": {
           "description": "The storage backend to use for the Stream.",
           "type": "string",
-          "enum": ["file", "memory"],
+          "enum": [
+            "file",
+            "memory"
+          ],
           "default": "file"
         },
         "num_replicas": {
@@ -682,7 +810,10 @@
         "discard": {
           "description": "When a Stream reach it's limits either old messages are deleted or new ones are denied",
           "type": "string",
-          "enum": ["old", "new"],
+          "enum": [
+            "old",
+            "new"
+          ],
           "default": "old"
         },
         "duplicate_window": {
@@ -710,7 +841,10 @@
     },
     "stream_template_info": {
       "type": "object",
-      "required": ["config", "streams"],
+      "required": [
+        "config",
+        "streams"
+      ],
       "properties": {
         "config": {
           "$ref": "#/definitions/stream_template_configuration"
@@ -727,7 +861,11 @@
     "stream_template_configuration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "config", "max_streams"],
+      "required": [
+        "name",
+        "config",
+        "max_streams"
+      ],
       "properties": {
         "name": {
           "type": "string",
