@@ -1,4 +1,4 @@
-FROM golang:1.15-alpine AS SERVER
+FROM golang:1.16-alpine AS SERVER
 
 ARG VERSION="nightly"
 
