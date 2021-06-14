@@ -4,7 +4,7 @@ JetStream is the [NATS.io](https://nats.io) persistence engine that will support
 
 **NOTE**: The Technical Preview is over and JetStream is now Generally Available. The final documentation is available at the [NATS Documentation Site](https://docs.nats.io/jetstream/).
 
-This repository is now not maintained anymore and nightly builds for JetStream has ended.
+This repository is no longer maintained and nightly builds for JetStream have ended as JetStream is now integrated into [nats-server](https://nats-io/nats-server).
 
 # Contents
 
