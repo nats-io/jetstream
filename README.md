@@ -1,4 +1,4 @@
-# JetStream (Technical Preview)
+# JetStream
 
 JetStream is the [NATS.io](https://nats.io) persistence engine that will support streaming as well as traditional message and worker queues for At-Least-Once delivery semantics.
 
